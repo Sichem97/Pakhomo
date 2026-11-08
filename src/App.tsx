@@ -4,7 +4,7 @@ import {
   ArrowRight, BadgeCheck, BedDouble, Building2, ChevronLeft,
   ChevronRight, Compass, Heart, LayoutDashboard, MapPin, Menu,
   Search, ShieldCheck, SlidersHorizontal, Sparkles, Trash2,
-  CheckCircle, XCircle, X, Home, TrendingUp, Eye
+  CheckCircle, XCircle, X, TrendingUp, Eye
 } from 'lucide-react'
 
 import { sampleProperties } from './data/properties'
