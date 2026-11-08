@@ -1,3 +1,4 @@
+import './TrendingProperties.css'
 
 import {
   ArrowRight,
