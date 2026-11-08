@@ -62,7 +62,7 @@ export default function SearchPanel({
   onViewAll,
 }: SearchPanelProps) {
   return (
-    <section className="search-section" id="discover">
+    <>
       <div className="section-heading">
         <div>
           <span className="overline">{t.exploreIn}</span>
@@ -156,6 +156,6 @@ export default function SearchPanel({
           {propertiesCount} {t.propertiesFound}
         </span>
       </div>
-    </section>
+    </>
   )
 }
