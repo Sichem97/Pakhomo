@@ -75,7 +75,7 @@ export default function Header({
         </span>
 
         <span>
-          habitat<span className="brand-light">africa</span>
+          Pakhomo<span className="brand-light">africa</span>
         </span>
       </a>
 
