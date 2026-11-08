@@ -8,6 +8,8 @@ import {
   X,
 } from 'lucide-react'
 
+import MobileMenu from './MobileMenu'
+
 import type { CountryCode } from '../../types'
 import type { Language } from '../../lib/i18n'
 
@@ -77,35 +79,11 @@ export default function Header({
         </span>
       </a>
 
-      <nav className={mobileMenu ? 'nav nav-open' : 'nav'}>
-        <a
-          href="#discover"
-          onClick={closeMobileMenu}
-        >
-          {t.discover}
-        </a>
-
-        <a
-          href="#trending"
-          onClick={closeMobileMenu}
-        >
-          Trending
-        </a>
-
-        <a
-          href="#how"
-          onClick={closeMobileMenu}
-        >
-          {t.howItWorks}
-        </a>
-
-        <a
-          href="#list-property"
-          onClick={closeMobileMenu}
-        >
-          {t.listProperty}
-        </a>
-      </nav>
+      <MobileMenu
+        isOpen={mobileMenu}
+        onClose={closeMobileMenu}
+        t={t}
+      />
 
       <div className="header-actions">
         <div className="language-switch">
