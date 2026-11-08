@@ -45,7 +45,11 @@ export default function FeaturedProperties({
           <div className="empty-state">
             <h3>{t.noProperties}</h3>
             <p>{t.noPropertiesDescription}</p>
-            <button onClick={onResetFilters}>
+
+            <button
+              type="button"
+              onClick={onResetFilters}
+            >
               {t.clearFilters}
             </button>
           </div>
@@ -60,7 +64,10 @@ export default function FeaturedProperties({
       )}
 
       <div className="view-all-properties">
-        <button onClick={onViewAll}>
+        <button
+          type="button"
+          onClick={onViewAll}
+        >
           {t.allProperties}
           <ArrowRight size={16} />
         </button>
