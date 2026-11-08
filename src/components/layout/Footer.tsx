@@ -16,7 +16,7 @@ export default function Footer({ t }: FooterProps) {
           <a className="brand" href="#">
             <span className="brand-mark">⌂</span>
             <span>
-              habitat<span className="brand-light">africa</span>
+              Pakhomo<span className="brand-light">africa</span>
             </span>
           </a>
 
@@ -32,7 +32,7 @@ export default function Footer({ t }: FooterProps) {
 
       <div className="footer-bottom">
         <span>
-          © {new Date().getFullYear()} Habitat Africa.
+          © {new Date().getFullYear()} Pakhomo Africa.
           All rights reserved.
         </span>
 
