@@ -4,6 +4,7 @@ import {
   SlidersHorizontal,
   X,
 } from 'lucide-react'
+import './PropertyFilters.css'
 
 import type {
   CountryCode,
