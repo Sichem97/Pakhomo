@@ -71,9 +71,7 @@ export default function SearchPanel({
 
         <div className="detected">
           <span className="pulse" />
-          {countryReady
-            ? t.countryDetected
-            : t.detectingCountry}
+          {countryReady ? t.countryDetected : t.detectingCountry}
         </div>
       </div>
 
@@ -122,7 +120,11 @@ export default function SearchPanel({
           </select>
         </div>
 
-        <button className="search-button" onClick={onViewAll}>
+        <button
+          type="button"
+          className="search-button"
+          onClick={onViewAll}
+        >
           {t.search}
           <ArrowRight size={15} />
         </button>
@@ -131,6 +133,7 @@ export default function SearchPanel({
       <div className="listing-toolbar">
         <div className="tabs">
           <button
+            type="button"
             className={listing === 'All' ? 'tab active' : 'tab'}
             onClick={() => onListingChange('All')}
           >
@@ -138,6 +141,7 @@ export default function SearchPanel({
           </button>
 
           <button
+            type="button"
             className={listing === 'Rent' ? 'tab active' : 'tab'}
             onClick={() => onListingChange('Rent')}
           >
@@ -145,6 +149,7 @@ export default function SearchPanel({
           </button>
 
           <button
+            type="button"
             className={listing === 'Sale' ? 'tab active' : 'tab'}
             onClick={() => onListingChange('Sale')}
           >
