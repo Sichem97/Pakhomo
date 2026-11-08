@@ -3,6 +3,12 @@ import { ArrowRight, BadgeCheck, BedDouble, Building2, ChevronDown, Compass, Hea
 import { sampleProperties } from './data/properties'
 import { detectCountry } from './lib/country'
 import { appwriteConfigured } from './lib/appwrite'
+import {
+  detectInitialLanguage,
+  saveLanguage,
+  translations,
+  type Language,
+} from './lib/i18n'
 import type { CountryCode, Property, PropertyKind } from './types'
 
 const countries: Record<CountryCode, { name: string; flag: string; currency: string; cities: string[] }> = {
@@ -16,19 +22,35 @@ function money(value: number, currency: Property['currency']) {
 }
 
 export default function App() {
+
   const [country, setCountry] = useState<CountryCode>('MW')
+
+  const [language, setLanguage] = useState<Language>(() => detectInitialLanguage())
+const t = translations[language]
+
   const [countryReady, setCountryReady] = useState(false)
+
   const [city, setCity] = useState('All cities')
+
   const [kind, setKind] = useState<'All types' | PropertyKind>('All types')
+
   const [listing, setListing] = useState<'All' | 'Rent' | 'Sale'>('All')
+
   const [query, setQuery] = useState('')
+
   const [saved, setSaved] = useState<string[]>([])
+
   const [mobileMenu, setMobileMenu] = useState(false)
+
   const [showCountryMenu, setShowCountryMenu] = useState(false)
 
   useEffect(() => {
     detectCountry().then(value => { setCountry(value); setCountryReady(true) })
   }, [])
+
+  useEffect(() => {
+  saveLanguage(language)
+}, [language])
 
   const visibleProperties = useMemo(() => sampleProperties.filter((p) =>
     p.countryCode === country &&
