@@ -68,15 +68,14 @@ export default function Header({
       <a
         className="brand"
         href="#"
-        onClick={closeMobileMenu}>
-
+        onClick={closeMobileMenu}
+      >
         <span className="brand-mark">
           <Building2 size={21} />
         </span>
 
         <span>
-          Pakhomo
-        <span className="brand-light">          africa</span>
+          habitat<span className="brand-light">africa</span>
         </span>
       </a>
 
