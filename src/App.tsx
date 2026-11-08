@@ -67,11 +67,22 @@ const t = translations[language]
       <header className="topbar">
         <a className="brand" href="#"><span className="brand-mark"><Building2 size={21}/></span><span>habitat<span className="brand-light">africa</span></span></a>
         <nav className={mobileMenu ? 'nav nav-open' : 'nav'}>
-          <a href="#discover" onClick={() => setMobileMenu(false)}>Discover</a>
-          <a href="#how" onClick={() => setMobileMenu(false)}>How it works</a>
-          <a href="#list-property" onClick={() => setMobileMenu(false)}>List a property</a>
+          <a href="#discover" onClick={() => setMobileMenu(false)}>{t.discover}</a>
+<a href="#how" onClick={() => setMobileMenu(false)}>{t.howItWorks}</a>
+<a href="#list-property" onClick={() => setMobileMenu(false)}>{t.listProperty}</a>
         </nav>
         <div className="header-actions">
+
+         <div className="language-switch">
+  <select
+    value={language}
+    onChange={(e) => setLanguage(e.target.value as Language)}
+    aria-label={t.language}
+  >
+    <option value="en">EN</option>
+    <option value="fr">FR</option>
+  </select>
+</div>
           <div className="country-wrap">
             <button className="country-button" onClick={() => setShowCountryMenu(!showCountryMenu)}>
               <span>{countries[country].flag}</span><span>{countries[country].name}</span><ChevronDown size={15}/>
@@ -80,7 +91,7 @@ const t = translations[language]
               {(Object.keys(countries) as CountryCode[]).map(code => <button key={code} onClick={() => { setCountry(code); setCity('All cities'); setShowCountryMenu(false) }}>{countries[code].flag} {countries[code].name}</button>)}
             </div>}
           </div>
-          <a className="list-button" href="#list-property">List your property <ArrowRight size={15}/></a>
+          <a className="list-button" href="#list-property">{t.listYourProperty} <ArrowRight size={15}/></a>
           <button className="mobile-toggle" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Toggle menu">{mobileMenu ? <X/> : <Menu/>}</button>
         </div>
       </header>
@@ -90,12 +101,12 @@ const t = translations[language]
           <div className="hero-image"/>
           <div className="hero-shade"/>
           <div className="hero-content">
-            <div className="eyebrow"><Sparkles size={14}/> A better way to find your place</div>
-            <h1>Find a place<br/><em>to call yours.</em></h1>
-            <p>Discover homes, land and spaces across Africa — with more clarity, confidence and trust.</p>
-            <a className="hero-link" href="#discover">Explore properties <ArrowRight size={17}/></a>
+            <div className="eyebrow"><Sparkles size={14}/> {t.tagline}</div>
+            <h1>{t.heroTitle}<br/><em>{t.heroTitleEmphasis}</em></h1>
+            <p>{t.heroDescription}</p>
+            <a className="hero-link" href="#discover">{t.exploreProperties} <ArrowRight size={17}/></a>
           </div>
-          <div className="hero-note"><span className="note-dot"/> Local properties. Trusted connections.</div>
+          <<div className="hero-note"><span className="note-dot"/> {t.localTrusted}</div>
         </section>
 
         <section className="search-section" id="discover">
