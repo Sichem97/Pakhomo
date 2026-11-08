@@ -101,7 +101,9 @@ export default function AllPropertiesPage({
   return (
     <main className="all-properties-page">
       <section className="all-properties-heading">
+
         <button
+          type="button"
           className="back-button"
           onClick={onBack}
         >
@@ -110,7 +112,7 @@ export default function AllPropertiesPage({
         </button>
 
         <span className="overline">
-          HABITAT AFRICA MARKETPLACE
+          PAKHOMO PROPERTY MARKETPLACE
         </span>
 
         <h1>
@@ -121,6 +123,7 @@ export default function AllPropertiesPage({
           Discover houses, apartments, land and commercial spaces
           across Malawi and the Democratic Republic of Congo.
         </p>
+
       </section>
 
       <section className="catalogue-section">
