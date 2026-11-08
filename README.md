@@ -1,4 +1,4 @@
-# Habitat Africa — Real-estate marketplace starter
+# pakhomo Africa — Real-estate marketplace starter
 
 A responsive React + TypeScript starter for a Malawi and DRC property marketplace. It includes country-aware browsing, country switching, listing filters, sample property cards and an Appwrite client setup.
 
