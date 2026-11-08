@@ -1,13 +1,14 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-import Header from './components/layout/Header'
-import Footer from './components/layout/Footer'
-import HomePage from './pages/HomePage'
-import AllPropertiesPage from './pages/AllPropertiesPage'
-import AdminPage, {
-  type AdminProperty,
-} from './pages/AdminPage'
+import { Header, Footer } from './components/layout'
+import {
+  HomePage,
+  AllPropertiesPage,
+  AdminPage,
+} from './pages'
+
+import type { AdminProperty } from './pages'
 
 import { sampleProperties } from './data/properties'
 import { detectCountry } from './lib/country'
@@ -22,18 +23,20 @@ import {
 
 import type {
   CountryCode,
-  Property,
   PropertyKind,
 } from './types'
 
 type Status = 'Pending' | 'Published' | 'Rejected'
+type Page = 'home' | 'properties' | 'admin'
 
-const initialStatuses: Record<string, Status> = Object.fromEntries(
-  sampleProperties.map((property) => [
-    property.title,
-    property.verified ? 'Published' : 'Pending',
-  ])
-)
+const initialStatuses: Record<string, Status> =
+  sampleProperties.reduce((result, property) => {
+    result[property.title] = property.verified
+      ? 'Published'
+      : 'Pending'
+
+    return result
+  }, {} as Record<string, Status>)
 
 export default function App() {
   const [country, setCountry] = useState<CountryCode>('MW')
@@ -58,13 +61,14 @@ export default function App() {
   })
 
   const [liked, setLiked] = useState<string[]>([])
-  const [statuses, setStatuses] = useState<Record<string, Status>>(
-    initialStatuses
-  )
+  const [statuses, setStatuses] =
+    useState<Record<string, Status>>(initialStatuses)
+
+  const [deletedProperties, setDeletedProperties] = useState<string[]>([])
 
   const [activeSlide, setActiveSlide] = useState(0)
-  const [page, setPage] = useState(() =>
-    typeof window !== 'undefined' &&
+
+  const [page, setPage] = useState<Page>(() =>
     window.location.pathname === '/properties'
       ? 'properties'
       : 'home'
@@ -77,7 +81,7 @@ export default function App() {
     let active = true
 
     detectCountry()
-      .then((detectedCountry) => {
+      .then(detectedCountry => {
         if (active) {
           setCountry(detectedCountry)
           setCountryReady(true)
@@ -98,7 +102,7 @@ export default function App() {
     document.documentElement.lang = language
   }, [language])
 
-  // Keep the page in sync with browser navigation.
+  // Handle browser navigation.
   useEffect(() => {
     const handlePopState = () => {
       setPage(
@@ -115,21 +119,26 @@ export default function App() {
     }
   }, [])
 
+  // Prepare properties and their current statuses.
   const allProperties = useMemo(() => {
-    return sampleProperties.map((property) => ({
-      ...property,
-      status: statuses[property.title] || 'Pending',
-    }))
-  }, [statuses])
+    return sampleProperties
+      .filter(property => !deletedProperties.includes(property.title))
+      .map(property => ({
+        ...property,
+        status: statuses[property.title] || 'Pending',
+      }))
+  }, [statuses, deletedProperties])
 
+  // Only published properties appear publicly.
   const publishedProperties = useMemo(() => {
     return allProperties.filter(
-      (property) => property.status === 'Published'
+      property => property.status === 'Published'
     )
   }, [allProperties])
 
+  // Apply homepage filters.
   const visibleProperties = useMemo(() => {
-    return publishedProperties.filter((property) => {
+    return publishedProperties.filter(property => {
       const matchesCountry = property.countryCode === country
 
       const matchesCity =
@@ -147,9 +156,7 @@ export default function App() {
         property.city,
         property.area,
         property.type,
-      ]
-        .join(' ')
-        .toLowerCase()
+      ].join(' ').toLowerCase()
 
       const matchesQuery = searchText.includes(query.toLowerCase())
 
@@ -163,7 +170,7 @@ export default function App() {
     })
   }, [publishedProperties, country, city, kind, listing, query])
 
-  // Calculate trending properties from published listings.
+  // Calculate trending properties.
   const trendingProperties = useMemo(() => {
     if (publishedProperties.length === 0) return []
 
@@ -176,7 +183,7 @@ export default function App() {
 
     return publishedProperties
       .filter(
-        (property) =>
+        property =>
           averageLikes > 0 &&
           (likes[property.title] || 0) >= averageLikes * 1.5
       )
@@ -186,7 +193,7 @@ export default function App() {
       )
   }, [publishedProperties, likes])
 
-  // Automatically change the trending slide.
+  // Automatically rotate trending properties.
   useEffect(() => {
     if (trendingProperties.length < 2) {
       setActiveSlide(0)
@@ -194,7 +201,7 @@ export default function App() {
     }
 
     const timer = window.setInterval(() => {
-      setActiveSlide((current) =>
+      setActiveSlide(current =>
         (current + 1) % trendingProperties.length
       )
     }, 5000)
@@ -213,8 +220,11 @@ export default function App() {
       ? language === 'fr' ? 'RDC' : 'DR Congo'
       : 'Malawi'
 
+  // Navigate between pages.
   function navigateTo(destination: 'home' | 'properties') {
-    const path = destination === 'properties' ? '/properties' : '/'
+    const path = destination === 'properties'
+      ? '/properties'
+      : '/'
 
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path)
@@ -224,16 +234,17 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Like or unlike a property.
   function toggleLike(title: string) {
     const alreadyLiked = liked.includes(title)
 
-    setLiked((current) =>
+    setLiked(current =>
       alreadyLiked
-        ? current.filter((item) => item !== title)
+        ? current.filter(item => item !== title)
         : [...current, title]
     )
 
-    setLikes((current) => ({
+    setLikes(current => ({
       ...current,
       [title]: Math.max(
         0,
@@ -242,11 +253,19 @@ export default function App() {
     }))
   }
 
+  // Update a property's administrative status.
   function updateStatus(id: string, status: Status) {
-    setStatuses((current) => ({
+    setStatuses(current => ({
       ...current,
       [id]: status,
     }))
+  }
+
+  // Delete a property from the current demo session.
+  function deleteProperty(id: string) {
+    setDeletedProperties(current =>
+      current.includes(id) ? current : [...current, id]
+    )
   }
 
   function resetFilters() {
@@ -258,16 +277,10 @@ export default function App() {
 
   function changeCountry(newCountry: CountryCode) {
     setCountry(newCountry)
-    setCity('All cities')
     resetFilters()
   }
 
-  const adminProperties: AdminProperty[] = allProperties.map(
-    (property) => ({
-      ...property,
-      status: property.status as AdminProperty['status'],
-    })
-  )
+  const adminProperties: AdminProperty[] = allProperties
 
   const footerTranslations = {
     footerDescription: t.footerDescription,
@@ -285,9 +298,10 @@ export default function App() {
         onCountryChange={changeCountry}
         onLanguageChange={setLanguage}
         onAdminToggle={() => {
-          setPage((current) =>
+          setPage(current =>
             current === 'admin' ? 'home' : 'admin'
           )
+
           window.scrollTo({ top: 0, behavior: 'smooth' })
         }}
         t={{
@@ -301,9 +315,9 @@ export default function App() {
       {page === 'admin' ? (
         <AdminPage
           properties={adminProperties}
-          onApprove={(id) => updateStatus(id, 'Published')}
-          onReject={(id) => updateStatus(id, 'Rejected')}
-          onDelete={(id) => updateStatus(id, 'Rejected')}
+          onApprove={id => updateStatus(id, 'Published')}
+          onReject={id => updateStatus(id, 'Rejected')}
+          onDelete={deleteProperty}
           onBack={() => {
             setPage('home')
             window.scrollTo({ top: 0, behavior: 'smooth' })
