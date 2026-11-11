@@ -1,3 +1,4 @@
+
 import {
   CheckCircle,
   Clock,
@@ -46,51 +47,47 @@ export default function AdminPropertyCard({
   }
 
   return (
-    <article className="admin-property-card">
+    <article className="admin-property">
+
       <img
         src={property.imageUrl}
         alt={property.title}
-        className="admin-property-image"
       />
 
       <div className="admin-property-details">
-        <div className="admin-property-topline">
-          <span
-            className={`admin-status status-${property.status.toLowerCase()}`}
-          >
-            {property.status === 'Pending' && <Clock size={13} />}
-            {property.status === 'Published' && <CheckCircle size={13} />}
-            {property.status === 'Rejected' && <XCircle size={13} />}
-            {property.status === 'Pending'
-              ? 'Pending review'
-              : property.status}
-          </span>
 
-          <span className="admin-country-code">
-            {property.countryCode}
-          </span>
-        </div>
+        <span className={`status-label status-${property.status.toLowerCase()}`}>
+          {property.status === 'Pending' && <Clock size={13} />}
+          {property.status === 'Published' && <CheckCircle size={13} />}
+          {property.status === 'Rejected' && <XCircle size={13} />}
+
+          {property.status === 'Pending'
+            ? 'Pending review'
+            : property.status}
+        </span>
 
         <h3>{property.title}</h3>
 
-        <p className="admin-property-location">
+        <p className="admin-location">
           <MapPin size={14} />
           {property.area}, {property.city}
         </p>
 
-        <div className="admin-property-meta">
-          <span>{property.type}</span>
-          <span>{property.listingType}</span>
-          <strong>{formatPrice(property)}</strong>
-        </div>
+        <strong>{formatPrice(property)}</strong>
 
-        <p className="admin-property-description">
+        <p>
+          {property.type} · {property.listingType}
+        </p>
+
+        <p>
           {property.description}
         </p>
 
-        <div className="admin-property-actions">
+        <div className="admin-actions">
+
           <button
-            className="admin-view-button"
+            type="button"
+            className="delete-button"
             onClick={() =>
               window.open(
                 property.imageUrl,
@@ -105,7 +102,8 @@ export default function AdminPropertyCard({
 
           {property.status !== 'Published' && (
             <button
-              className="admin-approve-button"
+              type="button"
+              className="approve-button"
               onClick={() => onApprove(id)}
             >
               <CheckCircle size={15} />
@@ -115,7 +113,8 @@ export default function AdminPropertyCard({
 
           {property.status !== 'Rejected' && (
             <button
-              className="admin-reject-button"
+              type="button"
+              className="reject-button"
               onClick={() => onReject(id)}
             >
               <XCircle size={15} />
@@ -124,12 +123,14 @@ export default function AdminPropertyCard({
           )}
 
           <button
-            className="admin-delete-button"
+            type="button"
+            className="delete-button"
             onClick={deleteProperty}
             aria-label="Delete property"
           >
             <Trash2 size={15} />
           </button>
+
         </div>
       </div>
     </article>
