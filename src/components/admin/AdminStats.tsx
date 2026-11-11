@@ -20,38 +20,52 @@ export default function AdminStats({
   rejected,
 }: AdminStatsProps) {
   return (
-    <section className="admin-stat-grid">
-      <article className="admin-stat-card">
-        <div className="admin-stat-icon">
+    <section className="admin-stats">
+
+      <article>
+        <div className="stat-icon">
           <Home size={21} />
         </div>
-        <span>Total submissions</span>
-        <strong>{total}</strong>
+
+        <div>
+          <strong>{total}</strong>
+          <small>Total submissions</small>
+        </div>
       </article>
 
-      <article className="admin-stat-card">
-        <div className="admin-stat-icon pending-icon">
+      <article>
+        <div className="stat-icon pending-icon">
           <Clock size={21} />
         </div>
-        <span>Awaiting review</span>
-        <strong>{pending}</strong>
+
+        <div>
+          <strong>{pending}</strong>
+          <small>Awaiting review</small>
+        </div>
       </article>
 
-      <article className="admin-stat-card">
-        <div className="admin-stat-icon published-icon">
+      <article>
+        <div className="stat-icon published-icon">
           <BadgeCheck size={21} />
         </div>
-        <span>Published</span>
-        <strong>{published}</strong>
+
+        <div>
+          <strong>{published}</strong>
+          <small>Published</small>
+        </div>
       </article>
 
-      <article className="admin-stat-card">
-        <div className="admin-stat-icon rejected-icon">
+      <article>
+        <div className="stat-icon rejected-icon">
           <XCircle size={21} />
         </div>
-        <span>Rejected</span>
-        <strong>{rejected}</strong>
+
+        <div>
+          <strong>{rejected}</strong>
+          <small>Rejected</small>
+        </div>
       </article>
+
     </section>
   )
 }
