@@ -19,8 +19,9 @@ export default function AdminPropertyList({
 }: AdminPropertyListProps) {
   if (properties.length === 0) {
     return (
-      <div className="admin-empty-state">
+      <div className="admin-empty">
         <h3>No property submissions yet</h3>
+
         <p>
           New property submissions will appear here for review.
         </p>
@@ -30,6 +31,7 @@ export default function AdminPropertyList({
 
   return (
     <div className="admin-property-list">
+
       {properties.map((property, index) => (
         <AdminPropertyCard
           key={`${property.$id || property.title}-${index}`}
@@ -39,6 +41,7 @@ export default function AdminPropertyList({
           onDelete={onDelete}
         />
       ))}
+
     </div>
   )
 }
