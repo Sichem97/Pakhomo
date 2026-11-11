@@ -1,4 +1,4 @@
-import './AdminPage.css'
+
 import { ArrowLeft, Home } from 'lucide-react'
 
 import {
@@ -44,14 +44,10 @@ export default function AdminPage({
 
   return (
     <main className="admin-page">
-      <div className="admin-page-heading">
-        <button className="back-button" onClick={onBack}>
-          <ArrowLeft size={17} />
-          Back to website
-        </button>
 
+      <div className="admin-heading">
         <div>
-          <span className="section-eyebrow">
+          <span className="overline">
             PAKHOMO AFRICA
           </span>
 
@@ -61,6 +57,15 @@ export default function AdminPage({
             Review property submissions and manage marketplace listings.
           </p>
         </div>
+
+        <button
+          type="button"
+          className="admin-header-button"
+          onClick={onBack}
+        >
+          <ArrowLeft size={17} />
+          Back to website
+        </button>
       </div>
 
       <AdminStats
@@ -70,8 +75,9 @@ export default function AdminPage({
         rejected={rejected.length}
       />
 
-      <section className="admin-listing-section">
-        <div className="admin-section-heading">
+      <section className="admin-panel">
+
+        <div className="admin-panel-heading">
           <div>
             <h2>Property submissions</h2>
 
@@ -80,13 +86,13 @@ export default function AdminPage({
             </p>
           </div>
 
-          <span className="admin-total-count">
+          <span className="trending-count">
             {properties.length} properties
           </span>
         </div>
 
         {properties.length === 0 ? (
-          <div className="admin-empty-state">
+          <div className="admin-empty">
             <Home size={35} />
             <h3>No property submissions yet</h3>
             <p>
@@ -101,13 +107,17 @@ export default function AdminPage({
             onDelete={onDelete}
           />
         )}
+
       </section>
 
-      <p className="admin-demo-notice">
-        Note: This is currently a frontend administration interface.
-        Secure administrator authentication and permanent database
-        actions will be connected later.
-      </p>
+      <div className="admin-security-note">
+        <span>
+          Note: This is currently a frontend administration interface.
+          Secure administrator authentication and permanent database
+          actions will be connected later.
+        </span>
+      </div>
+
     </main>
   )
 }
