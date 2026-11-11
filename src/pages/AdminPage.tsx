@@ -52,7 +52,7 @@ export default function AdminPage({
 
         <div>
           <span className="section-eyebrow">
-            HABITAT AFRICA
+            PAKHOMO AFRICA
           </span>
 
           <h1>Administration dashboard</h1>
