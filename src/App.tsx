@@ -36,18 +36,25 @@ type Page =
 
 const initialStatuses: Record<string, Status> =
   sampleProperties.reduce((result, property) => {
-    result[property.title] = property.verified
-      ? 'Published'
-      : 'Pending'
+    const id = property.id || property.$id || property.title
+
+    result[id] = property.verified ? 'Published' : 'Pending'
+    result[property.title] = property.verified ? 'Published' : 'Pending'
 
     return result
   }, {} as Record<string, Status>)
+
+// Always use a stable property identity.
+function getPropertyId(property: Property): string {
+  return property.id || property.$id || property.title
+}
 
 function getInitialPage(): Page {
   const path = window.location.pathname
 
   if (path === '/properties') return 'properties'
   if (path === '/list-property') return 'owner'
+  if (path === '/admin') return 'admin'
   if (path.startsWith('/property/')) return 'details'
 
   return 'home'
@@ -124,18 +131,24 @@ export default function App() {
 
       if (path === '/properties') {
         setPage('properties')
+        setSelectedProperty(null)
       } else if (path === '/list-property') {
         setPage('owner')
+        setSelectedProperty(null)
+      } else if (path === '/admin') {
+        setPage('admin')
+        setSelectedProperty(null)
       } else if (path.startsWith('/property/')) {
-        const id = path.split('/')[2]
+        const id = decodeURIComponent(path.split('/')[2] || '')
 
         const property = [...sampleProperties, ...userProperties]
-          .find(item => (item.id || item.$id || item.title) === id)
+          .find(item => getPropertyId(item) === id)
 
         setSelectedProperty(property || null)
         setPage(property ? 'details' : 'home')
       } else {
         setPage('home')
+        setSelectedProperty(null)
       }
 
       window.scrollTo({ top: 0 })
@@ -151,11 +164,18 @@ export default function App() {
   // Combine sample and owner-submitted properties.
   const allProperties = useMemo(() => {
     return [...sampleProperties, ...userProperties]
-      .filter(property => !deletedProperties.includes(property.title))
-      .map(property => ({
-        ...property,
-        status: statuses[property.title] || 'Pending',
-      }))
+      .filter(property => !deletedProperties.includes(getPropertyId(property)))
+      .map(property => {
+        const id = getPropertyId(property)
+
+        return {
+          ...property,
+          status:
+            statuses[id] ||
+            statuses[property.title] ||
+            'Pending',
+        }
+      })
   }, [statuses, deletedProperties, userProperties])
 
   // Only approved properties are public.
@@ -272,7 +292,7 @@ export default function App() {
   }
 
   function openProperty(property: Property) {
-    const id = property.id || property.$id || property.title
+    const id = getPropertyId(property)
 
     setSelectedProperty(property)
     navigateTo('details', `/property/${encodeURIComponent(id)}`)
@@ -284,7 +304,7 @@ export default function App() {
 
     setStatuses(current => ({
       ...current,
-      [property.title]: 'Pending',
+      [getPropertyId(property)]: 'Pending',
     }))
 
     navigateHome()
