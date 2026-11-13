@@ -1,169 +1,207 @@
 
-/* PROPERTY CATALOGUE FILTERS */
-
-.catalogue-section {
-  width: min(1180px, 100%);
-  margin: 0 auto;
-  padding: 0 5% 80px;
-}
+/* =========================================================
+   PAKHOMO — PROPERTY FILTERS
+========================================================= */
 
 .catalogue-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .catalogue-search {
+  width: min(520px, 100%);
+  min-height: 49px;
   display: flex;
   align-items: center;
   gap: 11px;
-  width: min(520px, 100%);
-  min-height: 46px;
-  padding: 0 14px;
-  border: 1px solid #e5ebe5;
-  border-radius: 8px;
+  padding: 0 15px;
+  color: var(--text-light);
   background: #fff;
-  color: #819087;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  box-shadow: var(--shadow-soft);
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
 
 .catalogue-search:focus-within {
-  border-color: #6d9b7b;
-  box-shadow: 0 0 0 3px rgba(49, 105, 75, .10);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(49, 92, 59, .09);
 }
 
 .catalogue-search input {
-  flex: 1;
   width: 100%;
   min-width: 0;
+  min-height: 45px;
+  padding: 0;
+  color: var(--text);
+  background: transparent;
   border: 0;
   outline: 0;
-  background: transparent;
-  color: #263d32;
+  box-shadow: none;
   font-size: 13px;
 }
 
+.catalogue-search input:focus {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
 .catalogue-search button {
-  display: grid;
-  place-items: center;
   width: 30px;
   height: 30px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: var(--text-light);
+  background: var(--background);
   border: 0;
   border-radius: 50%;
-  background: #f1f4f0;
-  color: #52665a;
-  cursor: pointer;
+}
+
+.catalogue-search button:hover {
+  color: var(--danger);
 }
 
 .catalogue-result-count {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  color: #78867d;
-  font-size: 12px;
+  color: var(--text-light);
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 .catalogue-result-count strong {
-  color: #244d3c;
-  font-size: 20px;
+  color: var(--primary);
+  font-size: 19px;
+  font-weight: 800;
 }
 
 .catalogue-filters {
   display: grid;
-  grid-template-columns: repeat(4, minmax(130px, 1fr)) auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: end;
-  gap: 12px;
-  padding: 17px;
-  margin-bottom: 28px;
-  border: 1px solid #e5ebe5;
-  border-radius: 10px;
-  background: #fbfcfa;
+  gap: 14px;
+  margin-bottom: 25px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
 }
 
-.catalogue-filters .filter-heading {
+.filter-heading {
   grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #315747;
-  font-size: 13px;
-  font-weight: 700;
+  gap: 9px;
+  padding-bottom: 12px;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 800;
 }
 
-.catalogue-filters > label {
+.catalogue-filters label {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 7px;
-  min-width: 0;
-  color: #6d7c72;
-  font-size: 11px;
-  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.catalogue-filters select {
+.catalogue-filters label select {
   width: 100%;
   min-width: 0;
-  min-height: 42px;
+  min-height: 44px;
+  margin: 0;
   padding: 0 11px;
-  border: 1px solid #e0e7df;
-  border-radius: 6px;
-  outline: none;
-  background: white;
-  color: #304b3d;
-  font-size: 12px;
-  cursor: pointer;
+  color: var(--text);
+  background: #fbfcfa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: 0;
+  font-size: 13px;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-.catalogue-filters select:focus-visible {
-  border-color: #6d9b7b;
-  box-shadow: 0 0 0 3px rgba(49, 105, 75, .10);
+.catalogue-filters label select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(49, 92, 59, .08);
 }
 
 .clear-catalogue-filters {
+  grid-column: 1 / -1;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 42px;
+  gap: 7px;
+  min-height: 36px;
   padding: 0 12px;
-  border: 1px solid #e6d9d5;
-  border-radius: 6px;
-  background: #fff8f6;
-  color: #9a5b50;
-  font-size: 11px;
+  color: var(--danger);
+  background: var(--danger-light);
+  border: 0;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 700;
-  cursor: pointer;
+  transition: background .2s ease;
 }
 
 .clear-catalogue-filters:hover {
-  background: #fff0ec;
+  background: #f7dada;
 }
 
-.catalogue-grid {
-  margin-top: 0;
+/* Empty search results */
+
+.empty-state {
+  grid-column: 1 / -1;
+  padding: 45px 20px;
+  text-align: center;
+  background: #fff;
+  border: 1px dashed #d8e0d6;
+  border-radius: 14px;
 }
+
+.empty-state h3 {
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.empty-state p {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.empty-state button {
+  min-height: 40px;
+  padding: 0 16px;
+  color: #fff;
+  background: var(--primary);
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+/* Responsive filters */
 
 @media (max-width: 900px) {
   .catalogue-filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .clear-catalogue-filters {
-    grid-column: 1 / -1;
-    justify-self: start;
-  }
 }
 
 @media (max-width: 600px) {
-  .catalogue-section {
-    padding: 0 5% 55px;
-  }
-
   .catalogue-toolbar {
     align-items: stretch;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
 
   .catalogue-search {
@@ -175,23 +213,15 @@
   }
 
   .catalogue-filters {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 13px;
-  }
-
-  .clear-catalogue-filters {
-    width: 100%;
-    justify-self: stretch;
-  }
-}
-
-@media (max-width: 360px) {
-  .catalogue-filters {
     grid-template-columns: 1fr;
+    gap: 13px;
+    padding: 15px;
   }
 
-  .catalogue-filters .filter-heading,
+  .filter-heading {
+    padding-bottom: 10px;
+  }
+
   .clear-catalogue-filters {
     grid-column: auto;
   }
