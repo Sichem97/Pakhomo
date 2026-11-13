@@ -1,5 +1,7 @@
 
 import { useState } from 'react'
+import './OwnerPage.css'
+
 import {
   ArrowLeft,
   Camera,
