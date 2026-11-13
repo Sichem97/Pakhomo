@@ -1,6 +1,6 @@
 
 import { useState } from 'react'
-import './PropertyDetailsPage.css'
+
 
 import {
   ArrowLeft,
