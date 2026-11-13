@@ -1,4 +1,4 @@
-import './TrendingProperties.css'
+//import './TrendingProperties.css'
 
 
 import {
