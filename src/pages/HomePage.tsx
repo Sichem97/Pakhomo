@@ -42,6 +42,7 @@ interface HomePageProps {
   onViewAll: () => void
   onListProperty: () => void
   onResetFilters: () => void
+  onPropertyClick: (property: Property) => void
 }
 
 export default function HomePage({
@@ -67,13 +68,12 @@ export default function HomePage({
   onViewAll,
   onListProperty,
   onResetFilters,
+  onPropertyClick,
 }: HomePageProps) {
   return (
     <main>
-      {/* HERO SECTION */}
       <HeroSection t={t} />
 
-      {/* SEARCH AND FEATURED PROPERTIES */}
       <section className="search-section" id="discover">
         <SearchPanel
           country={country}
@@ -100,21 +100,20 @@ export default function HomePage({
           onLike={onLike}
           onViewAll={onViewAll}
           onResetFilters={onResetFilters}
+          onPropertyClick={onPropertyClick}
         />
       </section>
 
-      {/* TRENDING PROPERTIES */}
       <TrendingProperties
         properties={trendingProperties}
         activeSlide={activeSlide}
         onSlideChange={onSlideChange}
         onViewAll={onViewAll}
+        onPropertyClick={onPropertyClick}
       />
 
-      {/* TRUST SECTION */}
       <TrustSection t={t} />
 
-      {/* PROPERTY OWNER INVITATION */}
       <OwnerInvitation
         t={t}
         onListProperty={onListProperty}
