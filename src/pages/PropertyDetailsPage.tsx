@@ -1,4 +1,4 @@
-import './PropertyDetailsPage.css'
+//import './PropertyDetailsPage.css'
 import { useState } from 'react'
 
 
