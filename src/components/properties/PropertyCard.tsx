@@ -29,6 +29,7 @@ interface PropertyCardProps {
   likes: number
   liked: boolean
   onLike: () => void
+  onClick: () => void
   index?: number
   t: Translation
 }
@@ -57,13 +58,26 @@ export default function PropertyCard({
   likes,
   liked,
   onLike,
+  onClick,
   index = 0,
   t,
 }: PropertyCardProps) {
   return (
     <article
       className="property-card"
-      style={{ animationDelay: `${index * 70}ms` }}
+      style={{
+        animationDelay: `${index * 70}ms`,
+        cursor: 'pointer',
+      }}
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onClick()
+        }
+      }}
     >
       <div className="property-photo">
         <img
@@ -77,8 +91,12 @@ export default function PropertyCard({
         </span>
 
         <button
+          type="button"
           className={liked ? 'save-button saved' : 'save-button'}
-          onClick={onLike}
+          onClick={event => {
+            event.stopPropagation()
+            onLike()
+          }}
           aria-label={liked ? 'Unlike property' : 'Like property'}
         >
           <Heart
@@ -139,4 +157,3 @@ export default function PropertyCard({
     </article>
   )
 }
-
