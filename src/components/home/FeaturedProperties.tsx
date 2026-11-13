@@ -9,10 +9,10 @@ interface FeaturedPropertiesProps {
   likes: Record<string, number>
   liked: string[]
   t: Record<string, string>
-
   onLike: (title: string) => void
   onViewAll: () => void
   onResetFilters: () => void
+  onPropertyClick: (property: Property) => void
 }
 
 export default function FeaturedProperties({
@@ -23,6 +23,7 @@ export default function FeaturedProperties({
   onLike,
   onViewAll,
   onResetFilters,
+  onPropertyClick,
 }: FeaturedPropertiesProps) {
   const previewProperties = properties.slice(0, 6)
 
@@ -32,11 +33,12 @@ export default function FeaturedProperties({
         {previewProperties.length > 0 ? (
           previewProperties.map((property, index) => (
             <PropertyCard
-              key={property.$id || property.title}
+              key={property.$id || property.id || property.title}
               property={property}
               likes={likes[property.title] || 0}
               liked={liked.includes(property.title)}
               onLike={() => onLike(property.title)}
+              onClick={() => onPropertyClick(property)}
               index={index}
               t={t as never}
             />
