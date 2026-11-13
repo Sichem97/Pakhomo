@@ -1,4 +1,4 @@
-//import './OwnerPage.css'
+import './OwnerPage.css'
 import { useState } from 'react'
 
 import {
