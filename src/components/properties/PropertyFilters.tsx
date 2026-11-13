@@ -1,4 +1,4 @@
-
+import './ProperlyFilters.css'
 import {
   Search,
   SlidersHorizontal,
