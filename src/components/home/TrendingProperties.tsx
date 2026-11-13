@@ -1,3 +1,4 @@
+
 import './TrendingProperties.css'
 
 import {
@@ -15,13 +16,14 @@ interface TrendingPropertiesProps {
   activeSlide: number
   onSlideChange: (index: number) => void
   onViewAll: () => void
+  onPropertyClick: (property: Property) => void
 }
 
 export default function TrendingProperties({
   properties,
   activeSlide,
   onSlideChange,
-  onViewAll,
+  onPropertyClick,
 }: TrendingPropertiesProps) {
   const currentTrending = properties[activeSlide]
 
@@ -50,6 +52,7 @@ export default function TrendingProperties({
 
         <div className="trending-controls">
           <button
+            type="button"
             aria-label="Previous property"
             onClick={() =>
               onSlideChange(
@@ -62,6 +65,7 @@ export default function TrendingProperties({
           </button>
 
           <button
+            type="button"
             aria-label="Next property"
             onClick={() =>
               onSlideChange((activeSlide + 1) % properties.length)
@@ -98,7 +102,10 @@ export default function TrendingProperties({
             )}
           </strong>
 
-          <button onClick={onViewAll}>
+          <button
+            type="button"
+            onClick={() => onPropertyClick(currentTrending)}
+          >
             Explore this property
             <ArrowRight size={15} />
           </button>
@@ -108,7 +115,8 @@ export default function TrendingProperties({
       <div className="trending-dots">
         {properties.map((property, index) => (
           <button
-            key={property.$id || property.title}
+            type="button"
+            key={property.$id || property.id || property.title}
             className={index === activeSlide ? 'active' : ''}
             aria-label={`Show trending property ${index + 1}`}
             onClick={() => onSlideChange(index)}
