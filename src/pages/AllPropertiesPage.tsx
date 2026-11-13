@@ -19,6 +19,7 @@ interface AllPropertiesPageProps {
   liked: string[]
   onLike: (title: string) => void
   onBack: () => void
+  onPropertyClick: (property: Property) => void
   t: Record<string, string>
 }
 
@@ -33,6 +34,7 @@ export default function AllPropertiesPage({
   liked,
   onLike,
   onBack,
+  onPropertyClick,
   t,
 }: AllPropertiesPageProps) {
   const [search, setSearch] = useState('')
@@ -101,7 +103,6 @@ export default function AllPropertiesPage({
   return (
     <main className="all-properties-page">
       <section className="all-properties-heading">
-
         <button
           type="button"
           className="back-button"
@@ -123,7 +124,6 @@ export default function AllPropertiesPage({
           Discover houses, apartments, land and commercial spaces
           across Malawi and the Democratic Republic of Congo.
         </p>
-
       </section>
 
       <section className="catalogue-section">
@@ -152,6 +152,7 @@ export default function AllPropertiesPage({
           t={t}
           onLike={onLike}
           onReset={resetFilters}
+          onPropertyClick={onPropertyClick}
         />
       </section>
     </main>
