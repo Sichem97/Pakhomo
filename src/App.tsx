@@ -2,13 +2,17 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { Header, Footer } from './components/layout'
+
 import {
   HomePage,
   AllPropertiesPage,
   AdminPage,
+  OwnerPage,
+  PropertyDetailsPage,
 } from './pages'
 
 import type { AdminProperty } from './pages'
+import type { Property, CountryCode, PropertyKind } from './types'
 
 import { sampleProperties } from './data/properties'
 import { detectCountry } from './lib/country'
@@ -21,13 +25,14 @@ import {
   type Language,
 } from './lib/i18n'
 
-import type {
-  CountryCode,
-  PropertyKind,
-} from './types'
-
 type Status = 'Pending' | 'Published' | 'Rejected'
-type Page = 'home' | 'properties' | 'admin'
+
+type Page =
+  | 'home'
+  | 'properties'
+  | 'admin'
+  | 'owner'
+  | 'details'
 
 const initialStatuses: Record<string, Status> =
   sampleProperties.reduce((result, property) => {
@@ -37,6 +42,16 @@ const initialStatuses: Record<string, Status> =
 
     return result
   }, {} as Record<string, Status>)
+
+function getInitialPage(): Page {
+  const path = window.location.pathname
+
+  if (path === '/properties') return 'properties'
+  if (path === '/list-property') return 'owner'
+  if (path.startsWith('/property/')) return 'details'
+
+  return 'home'
+}
 
 export default function App() {
   const [country, setCountry] = useState<CountryCode>('MW')
@@ -61,22 +76,22 @@ export default function App() {
   })
 
   const [liked, setLiked] = useState<string[]>([])
+
   const [statuses, setStatuses] =
     useState<Record<string, Status>>(initialStatuses)
 
+  const [userProperties, setUserProperties] = useState<Property[]>([])
   const [deletedProperties, setDeletedProperties] = useState<string[]>([])
 
-  const [activeSlide, setActiveSlide] = useState(0)
+  const [selectedProperty, setSelectedProperty] =
+    useState<Property | null>(null)
 
-  const [page, setPage] = useState<Page>(() =>
-    window.location.pathname === '/properties'
-      ? 'properties'
-      : 'home'
-  )
+  const [activeSlide, setActiveSlide] = useState(0)
+  const [page, setPage] = useState<Page>(getInitialPage)
 
   const t = translations[language]
 
-  // Detect the visitor's country.
+  // Detect visitor country.
   useEffect(() => {
     let active = true
 
@@ -96,20 +111,34 @@ export default function App() {
     }
   }, [])
 
-  // Save the selected language.
+  // Save language preference.
   useEffect(() => {
     saveLanguage(language)
     document.documentElement.lang = language
   }, [language])
 
-  // Handle browser navigation.
+  // Handle browser back and forward navigation.
   useEffect(() => {
-    const handlePopState = () => {
-      setPage(
-        window.location.pathname === '/properties'
-          ? 'properties'
-          : 'home'
-      )
+    function handlePopState() {
+      const path = window.location.pathname
+
+      if (path === '/properties') {
+        setPage('properties')
+      } else if (path === '/list-property') {
+        setPage('owner')
+      } else if (path.startsWith('/property/')) {
+        const id = path.split('/')[2]
+
+        const property = [...sampleProperties, ...userProperties]
+          .find(item => (item.id || item.$id || item.title) === id)
+
+        setSelectedProperty(property || null)
+        setPage(property ? 'details' : 'home')
+      } else {
+        setPage('home')
+      }
+
+      window.scrollTo({ top: 0 })
     }
 
     window.addEventListener('popstate', handlePopState)
@@ -117,26 +146,26 @@ export default function App() {
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [])
+  }, [userProperties])
 
-  // Prepare properties and their current statuses.
+  // Combine sample and owner-submitted properties.
   const allProperties = useMemo(() => {
-    return sampleProperties
+    return [...sampleProperties, ...userProperties]
       .filter(property => !deletedProperties.includes(property.title))
       .map(property => ({
         ...property,
         status: statuses[property.title] || 'Pending',
       }))
-  }, [statuses, deletedProperties])
+  }, [statuses, deletedProperties, userProperties])
 
-  // Only published properties appear publicly.
+  // Only approved properties are public.
   const publishedProperties = useMemo(() => {
     return allProperties.filter(
       property => property.status === 'Published'
     )
   }, [allProperties])
 
-  // Apply homepage filters.
+  // Homepage filters.
   const visibleProperties = useMemo(() => {
     return publishedProperties.filter(property => {
       const matchesCountry = property.countryCode === country
@@ -170,7 +199,7 @@ export default function App() {
     })
   }, [publishedProperties, country, city, kind, listing, query])
 
-  // Calculate trending properties.
+  // Trending properties.
   const trendingProperties = useMemo(() => {
     if (publishedProperties.length === 0) return []
 
@@ -193,7 +222,7 @@ export default function App() {
       )
   }, [publishedProperties, likes])
 
-  // Automatically rotate trending properties.
+  // Automatically rotate trending properties every five seconds.
   useEffect(() => {
     if (trendingProperties.length < 2) {
       setActiveSlide(0)
@@ -220,12 +249,8 @@ export default function App() {
       ? language === 'fr' ? 'RDC' : 'DR Congo'
       : 'Malawi'
 
-  // Navigate between pages.
-  function navigateTo(destination: 'home' | 'properties') {
-    const path = destination === 'properties'
-      ? '/properties'
-      : '/'
-
+  // Navigate to a page.
+  function navigateTo(destination: Page, path: string) {
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path)
     }
@@ -234,7 +259,38 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Like or unlike a property.
+  function navigateHome() {
+    navigateTo('home', '/')
+  }
+
+  function navigateProperties() {
+    navigateTo('properties', '/properties')
+  }
+
+  function openOwnerPage() {
+    navigateTo('owner', '/list-property')
+  }
+
+  function openProperty(property: Property) {
+    const id = property.id || property.$id || property.title
+
+    setSelectedProperty(property)
+    navigateTo('details', `/property/${encodeURIComponent(id)}`)
+  }
+
+  // Submit a property from the owner form.
+  function submitProperty(property: Property) {
+    setUserProperties(current => [...current, property])
+
+    setStatuses(current => ({
+      ...current,
+      [property.title]: 'Pending',
+    }))
+
+    navigateHome()
+  }
+
+  // Likes.
   function toggleLike(title: string) {
     const alreadyLiked = liked.includes(title)
 
@@ -253,7 +309,7 @@ export default function App() {
     }))
   }
 
-  // Update a property's administrative status.
+  // Admin status management.
   function updateStatus(id: string, status: Status) {
     setStatuses(current => ({
       ...current,
@@ -261,7 +317,6 @@ export default function App() {
     }))
   }
 
-  // Delete a property from the current demo session.
   function deleteProperty(id: string) {
     setDeletedProperties(current =>
       current.includes(id) ? current : [...current, id]
@@ -298,11 +353,11 @@ export default function App() {
         onCountryChange={changeCountry}
         onLanguageChange={setLanguage}
         onAdminToggle={() => {
-          setPage(current =>
-            current === 'admin' ? 'home' : 'admin'
-          )
-
-          window.scrollTo({ top: 0, behavior: 'smooth' })
+          if (page === 'admin') {
+            navigateHome()
+          } else {
+            navigateTo('admin', '/admin')
+          }
         }}
         t={{
           discover: t.discover,
@@ -318,10 +373,7 @@ export default function App() {
           onApprove={id => updateStatus(id, 'Published')}
           onReject={id => updateStatus(id, 'Rejected')}
           onDelete={deleteProperty}
-          onBack={() => {
-            setPage('home')
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-          }}
+          onBack={navigateHome}
           t={t}
         />
       ) : page === 'properties' ? (
@@ -330,8 +382,25 @@ export default function App() {
           likes={likes}
           liked={liked}
           onLike={toggleLike}
-          onBack={() => navigateTo('home')}
+          onBack={navigateHome}
+          onPropertyClick={openProperty}
           t={t}
+        />
+      ) : page === 'owner' ? (
+        <OwnerPage
+          onBack={navigateHome}
+          onSubmit={submitProperty}
+        />
+      ) : page === 'details' && selectedProperty ? (
+        <PropertyDetailsPage
+          property={selectedProperty}
+          onBack={() => {
+            if (window.history.length > 1) {
+              window.history.back()
+            } else {
+              navigateHome()
+            }
+          }}
         />
       ) : (
         <HomePage
@@ -355,12 +424,10 @@ export default function App() {
           onQueryChange={setQuery}
           onLike={toggleLike}
           onSlideChange={setActiveSlide}
-          onViewAll={() => navigateTo('properties')}
-          onListProperty={() => {
-            window.location.href =
-              'mailto:hello@habitat-africa.example?subject=List%20my%20property'
-          }}
+          onViewAll={navigateProperties}
+          onListProperty={openOwnerPage}
           onResetFilters={resetFilters}
+          onPropertyClick={openProperty}
         />
       )}
 
