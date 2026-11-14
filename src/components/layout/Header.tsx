@@ -2,8 +2,6 @@
 import { useState } from 'react'
 import {
   Building2,
-  ChevronRight,
-  LayoutDashboard,
   Menu,
   X,
 } from 'lucide-react'
@@ -28,20 +26,6 @@ interface HeaderProps {
   }
 }
 
-const countries: Record<CountryCode, {
-  name: string
-  flag: string
-}> = {
-  MW: {
-    name: 'Malawi',
-    flag: '🇲🇼',
-  },
-  CD: {
-    name: 'DR Congo',
-    flag: '🇨🇩',
-  },
-}
-
 export default function Header({
   country,
   language,
@@ -52,12 +36,6 @@ export default function Header({
   t,
 }: HeaderProps) {
   const [mobileMenu, setMobileMenu] = useState(false)
-  const [showCountryMenu, setShowCountryMenu] = useState(false)
-
-  const countryName =
-    country === 'CD' && language === 'fr'
-      ? 'RDC'
-      : countries[country].name
 
   function closeMobileMenu() {
     setMobileMenu(false)
@@ -82,62 +60,18 @@ export default function Header({
       <MobileMenu
         isOpen={mobileMenu}
         onClose={closeMobileMenu}
+        country={country}
+        language={language}
+        adminOpen={adminOpen}
+        onCountryChange={onCountryChange}
+        onLanguageChange={onLanguageChange}
+        onAdminToggle={onAdminToggle}
         t={t}
       />
 
       <div className="header-actions">
-        <div className="language-switch">
-          <select
-            value={language}
-            onChange={event =>
-              onLanguageChange(event.target.value as Language)
-            }
-            aria-label={t.language}
-          >
-            <option value="en">EN</option>
-            <option value="fr">FR</option>
-          </select>
-        </div>
-
-        <div className="country-wrap">
-          <button
-            className="country-button"
-            onClick={() =>
-              setShowCountryMenu(current => !current)
-            }
-            aria-expanded={showCountryMenu}
-          >
-            <span>{countries[country].flag}</span>
-            <span>{countryName}</span>
-            <ChevronRight size={15} />
-          </button>
-
-          {showCountryMenu && (
-            <div className="country-menu">
-              {(Object.keys(countries) as CountryCode[]).map(code => (
-                <button
-                  key={code}
-                  onClick={() => {
-                    onCountryChange(code)
-                    setShowCountryMenu(false)
-                  }}
-                >
-                  {countries[code].flag} {countries[code].name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
         <button
-          className="admin-header-button"
-          onClick={onAdminToggle}
-        >
-          <LayoutDashboard size={16} />
-          {adminOpen ? 'Website' : 'Admin'}
-        </button>
-
-        <button
+          type="button"
           className="mobile-toggle"
           onClick={() =>
             setMobileMenu(current => !current)
