@@ -521,3 +521,17 @@
   }
 }
 
+.view-image-button {
+  background: #f1f5f1;
+  color: var(--primary-dark);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.view-image-button:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+}
