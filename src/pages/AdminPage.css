@@ -242,3 +242,282 @@
     font-size: 20px;
   }
 }
+
+
+/* =========================================================
+   PAKHOMO — ADMIN STATISTICS
+========================================================= */
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 28px 0;
+}
+
+.admin-stats > article {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+}
+
+.admin-stats .stat-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  background: var(--primary-light);
+  border-radius: 12px;
+}
+
+.admin-stats .pending-icon {
+  color: var(--warning);
+  background: var(--warning-light);
+}
+
+.admin-stats .published-icon {
+  color: var(--success);
+  background: var(--success-light);
+}
+
+.admin-stats .rejected-icon {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.admin-stats strong {
+  display: block;
+  color: var(--text);
+  font-size: 25px;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.admin-stats small {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+/* =========================================================
+   ADMIN PROPERTY LIST
+========================================================= */
+
+.admin-property-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-property {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-soft);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.admin-property:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.admin-property > img {
+  width: 100%;
+  height: 100%;
+  min-height: 230px;
+  max-height: 280px;
+  object-fit: cover;
+  background: #edf1eb;
+}
+
+.admin-property-details {
+  min-width: 0;
+  padding: 20px;
+}
+
+.status-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.status-pending {
+  color: #9a6818;
+  background: var(--warning-light);
+}
+
+.status-published {
+  color: var(--success);
+  background: var(--success-light);
+}
+
+.status-rejected {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.admin-property-details h3 {
+  margin: 13px 0 9px;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.admin-property-details p {
+  margin: 8px 0;
+  color: var(--text-light);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.admin-property-details .admin-location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-property-details > strong {
+  display: block;
+  margin: 12px 0;
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 850;
+}
+
+/* =========================================================
+   ADMIN ACTION BUTTONS
+========================================================= */
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+}
+
+.admin-actions button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.admin-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.admin-actions .approve-button {
+  color: #fff;
+  background: var(--success);
+}
+
+.admin-actions .approve-button:hover {
+  background: #1d6c3d;
+}
+
+.admin-actions .reject-button {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+.admin-actions .reject-button:hover {
+  background: #f7dada;
+}
+
+.admin-actions .delete-button {
+  color: var(--text);
+  background: #f0f2ef;
+  border-color: var(--border);
+}
+
+.admin-actions .delete-button:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* =========================================================
+   ADMIN RESPONSIVE LAYOUT
+========================================================= */
+
+@media (max-width: 850px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-property {
+    grid-template-columns: 175px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-stats {
+    gap: 10px;
+  }
+
+  .admin-stats > article {
+    gap: 10px;
+    padding: 14px 11px;
+  }
+
+  .admin-stats .stat-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .admin-stats strong {
+    font-size: 21px;
+  }
+
+  .admin-stats small {
+    font-size: 10px;
+  }
+
+  .admin-property {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-property > img {
+    height: 205px;
+    min-height: 0;
+    max-height: 205px;
+  }
+
+  .admin-property-details {
+    padding: 16px;
+  }
+
+  .admin-actions {
+    gap: 8px;
+  }
+}
+
