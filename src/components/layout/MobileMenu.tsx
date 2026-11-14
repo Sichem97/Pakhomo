@@ -2,6 +2,8 @@
 interface MobileMenuProps {
   isOpen: boolean
   onClose: () => void
+  onAdminToggle: () => void
+  adminOpen: boolean
   t: {
     discover: string
     howItWorks: string
@@ -12,6 +14,8 @@ interface MobileMenuProps {
 export default function MobileMenu({
   isOpen,
   onClose,
+  onAdminToggle,
+  adminOpen,
   t,
 }: MobileMenuProps) {
   return (
@@ -31,6 +35,17 @@ export default function MobileMenu({
       <a href="#list-property" onClick={onClose}>
         {t.listProperty}
       </a>
+
+      <button
+        type="button"
+        className="menu-admin-button"
+        onClick={() => {
+          onAdminToggle()
+          onClose()
+        }}
+      >
+        {adminOpen ? 'Website' : 'Admin'}
+      </button>
     </nav>
   )
 }
