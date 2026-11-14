@@ -535,3 +535,11 @@
   background: var(--primary-light);
   border-color: var(--primary);
 }
+
+.admin-property-details > p:last-of-type {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
