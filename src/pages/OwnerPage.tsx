@@ -1,3 +1,4 @@
+
 import './OwnerPage.css'
 import { useState } from 'react'
 
@@ -459,12 +460,13 @@ export default function OwnerPage({
           </label>
 
           <label>
-            Email address
+            Email address *
             <input
               type="email"
               value={ownerEmail}
               onChange={event => setOwnerEmail(event.target.value)}
               placeholder="you@example.com"
+              required
             />
           </label>
         </section>
