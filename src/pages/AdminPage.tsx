@@ -1,4 +1,4 @@
-
+import './AdminPage.css'
 import { ArrowLeft, Home } from 'lucide-react'
 
 import {
