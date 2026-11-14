@@ -87,7 +87,7 @@ export default function AdminPropertyCard({
 
           <button
             type="button"
-            className="delete-button"
+            className="view-image-button"
             onClick={() =>
               window.open(
                 property.imageUrl,
