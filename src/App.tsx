@@ -92,7 +92,8 @@ export default function App() {
   const [statuses, setStatuses] =
     useState<Record<string, Status>>(initialStatuses)
 
-  const [userProperties, setUserProperties] = useState<Property[]>([])
+  const [userProperties] = useState<Property[]>([])
+
   const [deletedProperties, setDeletedProperties] = useState<string[]>([])
 
   const [selectedProperty, setSelectedProperty] =
