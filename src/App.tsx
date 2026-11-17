@@ -15,8 +15,13 @@ import type { AdminProperty } from './pages'
 import type { Property, CountryCode, PropertyKind } from './types'
 
 import { sampleProperties } from './data/properties'
+
 import { detectCountry } from './lib/country'
-import { appwriteConfigured } from './lib/appwrite'
+
+import {
+  appwriteConfigured,
+  submitPropertyToAPI,
+} from './lib/appwrite'
 
 import {
   detectInitialLanguage,
@@ -298,17 +303,20 @@ export default function App() {
     navigateTo('details', `/property/${encodeURIComponent(id)}`)
   }
 
-  // Submit a property from the owner form.
-  function submitProperty(property: Property) {
-    setUserProperties(current => [...current, property])
 
-    setStatuses(current => ({
-      ...current,
-      [getPropertyId(property)]: 'Pending',
-    }))
+  // Submit a property from the owner form.
+  async function submitProperty(property: Property) {
+  try {
+    await submitPropertyToAPI(property)
 
     navigateHome()
+  } catch (error) {
+    throw error instanceof Error
+      ? error
+      : new Error('Unable to submit your property.')
   }
+}
+
 
   // Likes.
   function toggleLike(title: string) {
