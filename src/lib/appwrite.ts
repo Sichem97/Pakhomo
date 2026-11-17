@@ -15,7 +15,7 @@ const databaseId = import.meta.env.VITE_APPWRITE_DATABASE_ID as string
 const propertiesTableId = import.meta.env.VITE_APPWRITE_PROPERTIES_TABLE_ID as string
 const bucketId = import.meta.env.VITE_APPWRITE_BUCKET_ID as string
 
-export const functionId = 'pakhomo-api'
+export const functionId = '6afb3359001a6a814cd2'
 
 export const appwriteConfigured = Boolean(
   endpoint && projectId && functionId
