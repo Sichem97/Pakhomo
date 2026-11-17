@@ -100,12 +100,14 @@ export async function submitPropertyToAPI(property: Property) {
 
 // Retrieve approved properties from Appwrite.
 export async function getApprovedProperties(): Promise<Property[]> {
+
   const execution = await functions.createExecution(
-    functionId,
-    '',
-    false,
-    '/'
-  )
+  functionId,
+  '',
+  false,
+  '/',
+  'GET'
+)
 
   let result: {
     success?: boolean
