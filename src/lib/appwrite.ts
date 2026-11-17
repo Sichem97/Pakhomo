@@ -66,12 +66,11 @@ export async function submitPropertyToAPI(property: Property) {
   }
 
   const execution = await functions.createExecution(
-    functionId,
-    JSON.stringify(payload),
-    false,
-    '/',
-    'POST'
-  )
+  functionId,
+  JSON.stringify(payload),
+  false,
+  '/'
+)
 
   let result: {
     success?: boolean
