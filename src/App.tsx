@@ -14,8 +14,6 @@ import {
 import type { AdminProperty } from './pages'
 import type { Property, CountryCode, PropertyKind } from './types'
 
-import { sampleProperties } from './data/properties'
-
 import { detectCountry } from './lib/country'
 
 import {
@@ -40,15 +38,7 @@ type Page =
   | 'owner'
   | 'details'
 
-const initialStatuses: Record<string, Status> =
-  sampleProperties.reduce((result, property) => {
-    const id = property.id || property.$id || property.title
-
-    result[id] = property.verified ? 'Published' : 'Pending'
-    result[property.title] = property.verified ? 'Published' : 'Pending'
-
-    return result
-  }, {} as Record<string, Status>)
+const initialStatuses: Record<string, Status> = {}
 
 // Always use a stable property identity.
 function getPropertyId(property: Property): string {
@@ -79,14 +69,7 @@ export default function App() {
   const [listing, setListing] = useState<'All' | 'Rent' | 'Sale'>('All')
   const [query, setQuery] = useState('')
 
-  const [likes, setLikes] = useState<Record<string, number>>({
-    'Modern family house in Lilongwe': 18,
-    'Beautiful apartment in Blantyre': 12,
-    'Residential plot in Mzuzu': 5,
-    'Modern house in Lubumbashi': 30,
-    'Apartment in Kinshasa': 24,
-    'Commercial land in Kolwezi': 8,
-  })
+  const [likes, setLikes] = useState<Record<string, number>>({})
 
   const [liked, setLiked] = useState<string[]>([])
 
@@ -94,7 +77,7 @@ export default function App() {
     useState<Record<string, Status>>(initialStatuses)
 
   const [userProperties] = useState<Property[]>([])
-const [apiProperties, setApiProperties] = useState<Property[]>([])
+  const [apiProperties, setApiProperties] = useState<Property[]>([])
 
   const [deletedProperties, setDeletedProperties] = useState<string[]>([])
 
@@ -126,24 +109,24 @@ const [apiProperties, setApiProperties] = useState<Property[]>([])
     }
   }, [])
 
-// Load approved properties from Appwrite.
-useEffect(() => {
-  let active = true
+  // Load approved properties from Appwrite.
+  useEffect(() => {
+    let active = true
 
-  getApprovedProperties()
-    .then(properties => {
-      if (active) {
-        setApiProperties(properties)
-      }
-    })
-    .catch(error => {
-      console.error('Unable to load Appwrite properties:', error)
-    })
+    getApprovedProperties()
+      .then(properties => {
+        if (active) {
+          setApiProperties(properties)
+        }
+      })
+      .catch(error => {
+        console.error('Unable to load Appwrite properties:', error)
+      })
 
-  return () => {
-    active = false
-  }
-}, [])
+    return () => {
+      active = false
+    }
+  }, [])
 
   // Save language preference.
   useEffect(() => {
@@ -168,7 +151,7 @@ useEffect(() => {
       } else if (path.startsWith('/property/')) {
         const id = decodeURIComponent(path.split('/')[2] || '')
 
-        const property = [...sampleProperties, ...userProperties]
+        const property = [...userProperties, ...apiProperties]
           .find(item => getPropertyId(item) === id)
 
         setSelectedProperty(property || null)
@@ -186,38 +169,33 @@ useEffect(() => {
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [userProperties])
+  }, [userProperties, apiProperties])
 
-  // Combine sample, owner-submitted and Appwrite properties.
-const allProperties = useMemo(() => {
-  const apiPropertyIds = new Set(
-    apiProperties.map(getPropertyId)
-  )
+  // Combine real properties only.
+  const allProperties = useMemo(() => {
+    return [...userProperties, ...apiProperties]
+      .filter(property =>
+        !deletedProperties.includes(getPropertyId(property))
+      )
+      .map(property => {
+        const id = getPropertyId(property)
 
-  return [...sampleProperties, ...userProperties, ...apiProperties]
-    .filter(property =>
-      !deletedProperties.includes(getPropertyId(property))
-    )
-    .map(property => {
-      const id = getPropertyId(property)
-
-      return {
-        ...property,
-        status: apiPropertyIds.has(id)
-          ? 'Published'
-          : statuses[id] ||
+        return {
+          ...property,
+          status:
+            statuses[id] ||
             statuses[property.title] ||
-            'Pending',
-      }
-    })
-}, [
-  statuses,
-  deletedProperties,
-  userProperties,
-  apiProperties,
-])
+            'Published',
+        }
+      })
+  }, [
+    statuses,
+    deletedProperties,
+    userProperties,
+    apiProperties,
+  ])
 
-  // Only approved properties are public.
+  // Only published properties are public.
   const publishedProperties = useMemo(() => {
     return allProperties.filter(
       property => property.status === 'Published'
@@ -256,7 +234,14 @@ const allProperties = useMemo(() => {
         matchesQuery
       )
     })
-  }, [publishedProperties, country, city, kind, listing, query])
+  }, [
+    publishedProperties,
+    country,
+    city,
+    kind,
+    listing,
+    query,
+  ])
 
   // Trending properties.
   const trendingProperties = useMemo(() => {
@@ -337,20 +322,18 @@ const allProperties = useMemo(() => {
     navigateTo('details', `/property/${encodeURIComponent(id)}`)
   }
 
-
   // Submit a property from the owner form.
   async function submitProperty(property: Property) {
-  try {
-    await submitPropertyToAPI(property)
+    try {
+      await submitPropertyToAPI(property)
 
-    navigateHome()
-  } catch (error) {
-    throw error instanceof Error
-      ? error
-      : new Error('Unable to submit your property.')
+      navigateHome()
+    } catch (error) {
+      throw error instanceof Error
+        ? error
+        : new Error('Unable to submit your property.')
+    }
   }
-}
-
 
   // Likes.
   function toggleLike(title: string) {
