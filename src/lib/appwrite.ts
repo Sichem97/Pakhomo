@@ -36,7 +36,7 @@ export const appwriteConfig = {
   functionId,
 }
 
-// Submit a property through the secure backend function.
+// Submit a property through the Appwrite backend.
 export async function submitPropertyToAPI(property: Property) {
   const image = property.images?.[0] || property.imageUrl
 
@@ -66,11 +66,11 @@ export async function submitPropertyToAPI(property: Property) {
   }
 
   const execution = await functions.createExecution(
-  functionId,
-  JSON.stringify(payload),
-  false,
-  '/'
-)
+    functionId,
+    JSON.stringify(payload),
+    false,
+    '/'
+  )
 
   let result: {
     success?: boolean
@@ -96,4 +96,57 @@ export async function submitPropertyToAPI(property: Property) {
   }
 
   return result
+}
+
+// Retrieve approved properties from Appwrite.
+export async function getApprovedProperties(): Promise<Property[]> {
+  const execution = await functions.createExecution(
+    functionId,
+    '',
+    false,
+    '/'
+  )
+
+  let result: {
+    success?: boolean
+    message?: string
+    properties?: Array<{
+      id: string
+      title: string
+      description: string
+      countryCode: 'MW' | 'CD'
+      city: string
+      area: string
+      type: Property['type']
+      listingType: Property['listingType']
+      price: number
+      currency: Property['currency']
+      bedrooms?: number
+      bathrooms?: number
+      size?: number
+      imageUrl: string
+      verified: boolean
+    }>
+  }
+
+  try {
+    result = JSON.parse(execution.responseBody)
+  } catch {
+    throw new Error('The server returned an invalid response.')
+  }
+
+  if (
+    execution.responseStatusCode < 200 ||
+    execution.responseStatusCode >= 300 ||
+    !result.success
+  ) {
+    throw new Error(
+      result.message || 'Unable to load approved properties.'
+    )
+  }
+
+  return (result.properties || []).map(property => ({
+    ...property,
+    verified: true,
+  }))
 }
