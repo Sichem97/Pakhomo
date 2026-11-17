@@ -21,6 +21,7 @@ import { detectCountry } from './lib/country'
 import {
   appwriteConfigured,
   submitPropertyToAPI,
+  getApprovedProperties,
 } from './lib/appwrite'
 
 import {
@@ -93,6 +94,7 @@ export default function App() {
     useState<Record<string, Status>>(initialStatuses)
 
   const [userProperties] = useState<Property[]>([])
+const [apiProperties, setApiProperties] = useState<Property[]>([])
 
   const [deletedProperties, setDeletedProperties] = useState<string[]>([])
 
@@ -123,6 +125,25 @@ export default function App() {
       active = false
     }
   }, [])
+
+// Load approved properties from Appwrite.
+useEffect(() => {
+  let active = true
+
+  getApprovedProperties()
+    .then(properties => {
+      if (active) {
+        setApiProperties(properties)
+      }
+    })
+    .catch(error => {
+      console.error('Unable to load Appwrite properties:', error)
+    })
+
+  return () => {
+    active = false
+  }
+}, [])
 
   // Save language preference.
   useEffect(() => {
@@ -167,22 +188,34 @@ export default function App() {
     }
   }, [userProperties])
 
-  // Combine sample and owner-submitted properties.
-  const allProperties = useMemo(() => {
-    return [...sampleProperties, ...userProperties]
-      .filter(property => !deletedProperties.includes(getPropertyId(property)))
-      .map(property => {
-        const id = getPropertyId(property)
+  // Combine sample, owner-submitted and Appwrite properties.
+const allProperties = useMemo(() => {
+  const apiPropertyIds = new Set(
+    apiProperties.map(getPropertyId)
+  )
 
-        return {
-          ...property,
-          status:
-            statuses[id] ||
+  return [...sampleProperties, ...userProperties, ...apiProperties]
+    .filter(property =>
+      !deletedProperties.includes(getPropertyId(property))
+    )
+    .map(property => {
+      const id = getPropertyId(property)
+
+      return {
+        ...property,
+        status: apiPropertyIds.has(id)
+          ? 'Published'
+          : statuses[id] ||
             statuses[property.title] ||
             'Pending',
-        }
-      })
-  }, [statuses, deletedProperties, userProperties])
+      }
+    })
+}, [
+  statuses,
+  deletedProperties,
+  userProperties,
+  apiProperties,
+])
 
   // Only approved properties are public.
   const publishedProperties = useMemo(() => {
