@@ -20,7 +20,7 @@ import type {
 
 interface OwnerPageProps {
   onBack: () => void
-  onSubmit: (property: Property) => void
+  onSubmit: (property: Property) => void | Promise<void>
 }
 
 const propertyTypes: PropertyKind[] = [
@@ -30,6 +30,12 @@ const propertyTypes: PropertyKind[] = [
   'Shop',
   'Office',
   'Hotel',
+]
+
+const allowedImageTypes = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
 ]
 
 export default function OwnerPage({
@@ -59,6 +65,7 @@ export default function OwnerPage({
 
   const [images, setImages] = useState<string[]>([])
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   function handleImages(
     event: React.ChangeEvent<HTMLInputElement>
@@ -74,8 +81,8 @@ export default function OwnerPage({
     }
 
     const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        setError('Please select image files only.')
+      if (!allowedImageTypes.includes(file.type)) {
+        setError('Please select JPEG, PNG or WebP images only.')
         return false
       }
 
@@ -121,12 +128,23 @@ export default function OwnerPage({
     )
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault()
     setError('')
 
+    if (submitting) return
+
     if (!images.length) {
       setError('Please upload at least one property photo.')
+      return
+    }
+
+    const numericPrice = Number(price)
+
+    if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+      setError('Please enter a valid property price.')
       return
     }
 
@@ -139,10 +157,10 @@ export default function OwnerPage({
       area: area.trim(),
       type,
       listingType,
-      price: Number(price),
+      price: numericPrice,
       currency,
-      bedrooms: bedrooms ? Number(bedrooms) : undefined,
-      bathrooms: bathrooms ? Number(bathrooms) : undefined,
+      bedrooms: bedrooms ? Number(bedrooms) : 0,
+      bathrooms: bathrooms ? Number(bathrooms) : 0,
       size: size ? Number(size) : undefined,
       imageUrl: images[0],
       images,
@@ -152,7 +170,18 @@ export default function OwnerPage({
       verified: false,
     }
 
-    onSubmit(newProperty)
+    try {
+      setSubmitting(true)
+      await onSubmit(newProperty)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Property submission failed. Please try again.'
+      )
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -386,7 +415,7 @@ export default function OwnerPage({
             <input
               id="property-images"
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={handleImages}
             />
@@ -486,8 +515,9 @@ export default function OwnerPage({
           <button
             type="submit"
             className="owner-submit-button"
+            disabled={submitting}
           >
-            Submit property
+            {submitting ? 'Submitting...' : 'Submit property'}
             <Send size={17} />
           </button>
         </div>
