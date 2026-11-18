@@ -23,12 +23,14 @@ interface AdminPropertyCardProps {
 }
 
 function formatPrice(property: Property) {
+  const price = Number(property.price) || 0
+
   return (
     new Intl.NumberFormat('en-US', {
       maximumFractionDigits: 0,
-    }).format(property.price) +
+    }).format(price) +
     ' ' +
-    property.currency
+    (property.currency || 'USD')
   )
 }
 
@@ -38,62 +40,86 @@ export default function AdminPropertyCard({
   onReject,
   onDelete,
 }: AdminPropertyCardProps) {
-  // Always use the real Appwrite row ID.
+  // Use the actual Appwrite document ID.
   const id = property.id || property.$id
+
+  // Protect the component when a property has no status.
+  const status: PropertyStatus = property.status || 'Pending'
+
+  const title = property.title || 'Untitled property'
+  const imageUrl = property.imageUrl || ''
 
   return (
     <article className="admin-property">
 
-      <img
-        src={property.imageUrl}
-        alt={property.title}
-      />
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={title}
+          onError={(event) => {
+            event.currentTarget.style.display = 'none'
+          }}
+        />
+      ) : (
+        <div className="admin-image-placeholder">
+          Image unavailable
+        </div>
+      )}
 
       <div className="admin-property-details">
 
-        <span className={`status-label status-${property.status.toLowerCase()}`}>
-          {property.status === 'Pending' && <Clock size={13} />}
-          {property.status === 'Published' && <CheckCircle size={13} />}
-          {property.status === 'Rejected' && <XCircle size={13} />}
+        <span
+          className={`status-label status-${status.toLowerCase()}`}
+        >
+          {status === 'Pending' && <Clock size={13} />}
+          {status === 'Published' && <CheckCircle size={13} />}
+          {status === 'Rejected' && <XCircle size={13} />}
 
-          {property.status === 'Pending'
+          {status === 'Pending'
             ? 'Pending review'
-            : property.status}
+            : status}
         </span>
 
-        <h3>{property.title}</h3>
+        <h3>{title}</h3>
 
         <p className="admin-location">
           <MapPin size={14} />
-          {property.area}, {property.city}
+          {property.area || 'Unknown area'},{' '}
+          {property.city || 'Unknown city'}
         </p>
 
         <strong>{formatPrice(property)}</strong>
 
         <p>
-          {property.type} · {property.listingType}
+          {property.type || 'Property'} ·{' '}
+          {property.listingType || 'Listing'}
         </p>
 
-        <p>{property.description}</p>
+        <p>
+          {property.description || 'No description provided.'}
+        </p>
 
         <div className="admin-actions">
 
           <button
             type="button"
             className="view-image-button"
-            onClick={() =>
-              window.open(
-                property.imageUrl,
-                '_blank',
-                'noopener,noreferrer'
-              )
-            }
+            disabled={!imageUrl}
+            onClick={() => {
+              if (imageUrl) {
+                window.open(
+                  imageUrl,
+                  '_blank',
+                  'noopener,noreferrer'
+                )
+              }
+            }}
           >
             <Eye size={15} />
             View image
           </button>
 
-          {property.status !== 'Published' && (
+          {status !== 'Published' && (
             <button
               type="button"
               className="approve-button"
@@ -105,7 +131,7 @@ export default function AdminPropertyCard({
             </button>
           )}
 
-          {property.status !== 'Rejected' && (
+          {status !== 'Rejected' && (
             <button
               type="button"
               className="reject-button"
