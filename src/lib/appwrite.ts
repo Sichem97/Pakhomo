@@ -9,6 +9,10 @@ import {
 
 import type { Property } from '../types'
 
+// ==========================================
+// APPWRITE CONFIGURATION
+// ==========================================
+
 const endpoint = import.meta.env.VITE_APPWRITE_ENDPOINT as string
 const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID as string
 
@@ -21,6 +25,10 @@ export const functionId = '6afb3359001a6a814cd2'
 export const appwriteConfigured = Boolean(
   endpoint && projectId && functionId
 )
+
+// ==========================================
+// APPWRITE CLIENT
+// ==========================================
 
 export const client = new Client()
   .setEndpoint(endpoint)
@@ -37,7 +45,10 @@ export const appwriteConfig = {
   functionId,
 }
 
-// Submit a property through the Appwrite backend.
+// ==========================================
+// SUBMIT PROPERTY TO APPWRITE
+// ==========================================
+
 export async function submitPropertyToAPI(property: Property) {
   const image = property.images?.[0] || property.imageUrl
 
@@ -99,20 +110,23 @@ export async function submitPropertyToAPI(property: Property) {
   return result
 }
 
-// Retrieve approved properties from Appwrite.
-export async function getApprovedProperties(): Promise<Property[]> {
+// ==========================================
+// RETRIEVE APPROVED PROPERTIES
+// ==========================================
 
+export async function getApprovedProperties(): Promise<Property[]> {
   const execution = await functions.createExecution(
-  functionId,
-  '',
-  false,
-  '/',
-  ExecutionMethod.GET
-)
+    functionId,
+    '',
+    false,
+    '/',
+    ExecutionMethod.GET
+  )
 
   let result: {
     success?: boolean
     message?: string
+    total?: number
     properties?: Array<{
       id: string
       title: string
