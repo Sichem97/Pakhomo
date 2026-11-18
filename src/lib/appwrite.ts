@@ -4,6 +4,7 @@ import {
   Account,
   Functions,
   Storage,
+  ExecutionMethod,
 } from 'appwrite'
 
 import type { Property } from '../types'
@@ -106,7 +107,7 @@ export async function getApprovedProperties(): Promise<Property[]> {
   '',
   false,
   '/',
-  'GET'
+  ExecutionMethod.GET
 )
 
   let result: {
