@@ -12,7 +12,11 @@ import type { Property } from '../../types'
 import type { PropertyStatus } from '../../pages/AdminPage'
 
 interface AdminPropertyCardProps {
-  property: Property & { status: PropertyStatus }
+  property: Property & {
+    id?: string
+    $id?: string
+    status: PropertyStatus
+  }
   onApprove: (id: string) => void
   onReject: (id: string) => void
   onDelete: (id: string) => void
@@ -34,17 +38,8 @@ export default function AdminPropertyCard({
   onReject,
   onDelete,
 }: AdminPropertyCardProps) {
-  const id = property.$id || property.title
-
-  function deleteProperty() {
-    if (
-      window.confirm(
-        'Are you sure you want to delete this property?'
-      )
-    ) {
-      onDelete(id)
-    }
-  }
+  // Always use the real Appwrite row ID.
+  const id = property.id || property.$id
 
   return (
     <article className="admin-property">
@@ -79,9 +74,7 @@ export default function AdminPropertyCard({
           {property.type} · {property.listingType}
         </p>
 
-        <p>
-          {property.description}
-        </p>
+        <p>{property.description}</p>
 
         <div className="admin-actions">
 
@@ -104,7 +97,8 @@ export default function AdminPropertyCard({
             <button
               type="button"
               className="approve-button"
-              onClick={() => onApprove(id)}
+              disabled={!id}
+              onClick={() => id && onApprove(id)}
             >
               <CheckCircle size={15} />
               Approve
@@ -115,7 +109,8 @@ export default function AdminPropertyCard({
             <button
               type="button"
               className="reject-button"
-              onClick={() => onReject(id)}
+              disabled={!id}
+              onClick={() => id && onReject(id)}
             >
               <XCircle size={15} />
               Reject
@@ -125,7 +120,8 @@ export default function AdminPropertyCard({
           <button
             type="button"
             className="delete-button"
-            onClick={deleteProperty}
+            disabled={!id}
+            onClick={() => id && onDelete(id)}
             aria-label="Delete property"
           >
             <Trash2 size={15} />
