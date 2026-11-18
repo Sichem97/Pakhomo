@@ -46,6 +46,135 @@ export const appwriteConfig = {
 }
 
 // ==========================================
+// SHARED FUNCTION RESPONSE HANDLER
+// ==========================================
+
+async function executeAPI(
+  path: string,
+  method: ExecutionMethod,
+  body = ''
+) {
+  const execution = await functions.createExecution(
+    functionId,
+    body,
+    false,
+    path,
+    method
+  )
+
+  let result: any
+
+  try {
+    result = JSON.parse(execution.responseBody)
+  } catch {
+    throw new Error('The server returned an invalid response.')
+  }
+
+  if (
+    execution.responseStatusCode < 200 ||
+    execution.responseStatusCode >= 300 ||
+    !result.success
+  ) {
+    throw new Error(
+      result.message || 'The request could not be completed.'
+    )
+  }
+
+  return result
+}
+
+// ==========================================
+// ADMINISTRATOR AUTHENTICATION
+// ==========================================
+
+export async function adminLogin(
+  email: string,
+  password: string
+) {
+  await account.createEmailPasswordSession(email, password)
+
+  return await account.get()
+}
+
+export async function adminLogout() {
+  await account.deleteSession('current')
+}
+
+export async function getCurrentUser() {
+  try {
+    return await account.get()
+  } catch {
+    return null
+  }
+}
+
+// ==========================================
+// ADMIN PROPERTY TYPES
+// ==========================================
+
+export interface AdminProperty {
+  id: string
+  title: string
+  description: string
+  countryCode: 'MW' | 'CD'
+  city: string
+  area: string
+  type: Property['type']
+  listingType: Property['listingType']
+  price: number
+  currency: Property['currency']
+  bedrooms?: number
+  bathrooms?: number
+  size?: number
+  imageUrl: string
+  imageId?: string
+  verified: boolean
+  status: 'Pending' | 'Approved' | 'Rejected'
+  ownerName?: string
+  ownerPhone?: string
+  ownerEmail?: string
+}
+
+// ==========================================
+// ADMIN: RETRIEVE ALL PROPERTIES
+// ==========================================
+
+export async function getAdminProperties(): Promise<AdminProperty[]> {
+  const result = await executeAPI(
+    '/admin/properties',
+    ExecutionMethod.GET
+  )
+
+  return result.properties || []
+}
+
+// ==========================================
+// ADMIN: APPROVE OR REJECT PROPERTY
+// ==========================================
+
+export async function updateAdminProperty(
+  propertyId: string,
+  status: 'Approved' | 'Rejected'
+) {
+  return await executeAPI(
+    `/admin/properties/${encodeURIComponent(propertyId)}`,
+    ExecutionMethod.PATCH,
+    JSON.stringify({ status })
+  )
+}
+
+// ==========================================
+// ADMIN: DELETE PROPERTY
+// ==========================================
+
+export async function deleteAdminProperty(propertyId: string) {
+  return await executeAPI(
+    `/admin/properties/${encodeURIComponent(propertyId)}`,
+    ExecutionMethod.DELETE
+  )
+}
+
+// ==========================================
 // SUBMIT PROPERTY TO APPWRITE
 // ==========================================
 
@@ -77,35 +206,11 @@ export async function submitPropertyToAPI(property: Property) {
     image,
   }
 
-  const execution = await functions.createExecution(
-    functionId,
-    JSON.stringify(payload),
-    false,
-    '/'
+  const result = await executeAPI(
+    '/',
+    ExecutionMethod.POST,
+    JSON.stringify(payload)
   )
-
-  let result: {
-    success?: boolean
-    message?: string
-    propertyId?: string
-    status?: string
-  }
-
-  try {
-    result = JSON.parse(execution.responseBody)
-  } catch {
-    throw new Error('The server returned an invalid response.')
-  }
-
-  if (
-    execution.responseStatusCode < 200 ||
-    execution.responseStatusCode >= 300 ||
-    !result.success
-  ) {
-    throw new Error(
-      result.message || 'Property submission failed.'
-    )
-  }
 
   return result
 }
@@ -115,54 +220,12 @@ export async function submitPropertyToAPI(property: Property) {
 // ==========================================
 
 export async function getApprovedProperties(): Promise<Property[]> {
-  const execution = await functions.createExecution(
-    functionId,
-    '',
-    false,
+  const result = await executeAPI(
     '/',
     ExecutionMethod.GET
   )
 
-  let result: {
-    success?: boolean
-    message?: string
-    total?: number
-    properties?: Array<{
-      id: string
-      title: string
-      description: string
-      countryCode: 'MW' | 'CD'
-      city: string
-      area: string
-      type: Property['type']
-      listingType: Property['listingType']
-      price: number
-      currency: Property['currency']
-      bedrooms?: number
-      bathrooms?: number
-      size?: number
-      imageUrl: string
-      verified: boolean
-    }>
-  }
-
-  try {
-    result = JSON.parse(execution.responseBody)
-  } catch {
-    throw new Error('The server returned an invalid response.')
-  }
-
-  if (
-    execution.responseStatusCode < 200 ||
-    execution.responseStatusCode >= 300 ||
-    !result.success
-  ) {
-    throw new Error(
-      result.message || 'Unable to load approved properties.'
-    )
-  }
-
-  return (result.properties || []).map(property => ({
+  return (result.properties || []).map((property: Property) => ({
     ...property,
     verified: true,
   }))
