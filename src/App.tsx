@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Header, Footer } from './components/layout'
 
+import AdminErrorBoundary from './components/admin/AdminErrorBoundary'
+
 import {
   HomePage,
   AllPropertiesPage,
@@ -70,7 +72,6 @@ export default function App() {
   const [query, setQuery] = useState('')
 
   const [likes, setLikes] = useState<Record<string, number>>({})
-
   const [liked, setLiked] = useState<string[]>([])
 
   const [statuses, setStatuses] =
@@ -326,7 +327,6 @@ export default function App() {
   async function submitProperty(property: Property) {
     try {
       await submitPropertyToAPI(property)
-
       navigateHome()
     } catch (error) {
       throw error instanceof Error
@@ -413,14 +413,16 @@ export default function App() {
       />
 
       {page === 'admin' ? (
-        <AdminPage
-          properties={adminProperties}
-          onApprove={id => updateStatus(id, 'Published')}
-          onReject={id => updateStatus(id, 'Rejected')}
-          onDelete={deleteProperty}
-          onBack={navigateHome}
-          t={t}
-        />
+        <AdminErrorBoundary>
+          <AdminPage
+            properties={adminProperties}
+            onApprove={id => updateStatus(id, 'Published')}
+            onReject={id => updateStatus(id, 'Rejected')}
+            onDelete={deleteProperty}
+            onBack={navigateHome}
+            t={t}
+          />
+        </AdminErrorBoundary>
       ) : page === 'properties' ? (
         <AllPropertiesPage
           properties={publishedProperties}
