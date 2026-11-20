@@ -158,7 +158,7 @@ export async function updateAdminProperty(
 ) {
   return await executeAPI(
     `/admin/properties/${encodeURIComponent(propertyId)}`,
-    ExecutionMethod.PATCH,
+    ExecutionMethod.POST,
     JSON.stringify({ status })
   )
 }
