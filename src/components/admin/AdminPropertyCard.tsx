@@ -1,4 +1,6 @@
 
+import { useState } from 'react'
+
 import {
   CheckCircle,
   Clock,
@@ -6,6 +8,14 @@ import {
   MapPin,
   Trash2,
   XCircle,
+  ChevronDown,
+  ChevronUp,
+  User,
+  Phone,
+  Mail,
+  BedDouble,
+  Bath,
+  Ruler,
 } from 'lucide-react'
 
 import type { Property } from '../../types'
@@ -16,6 +26,13 @@ interface AdminPropertyCardProps {
     id?: string
     $id?: string
     status: PropertyStatus
+    ownerName?: string
+    ownerPhone?: string
+    ownerEmail?: string
+    countryCode?: string
+    bedrooms?: number
+    bathrooms?: number
+    size?: number | string
   }
   onApprove: (id: string) => void
   onReject: (id: string) => void
@@ -40,18 +57,15 @@ export default function AdminPropertyCard({
   onReject,
   onDelete,
 }: AdminPropertyCardProps) {
-  // Use the actual Appwrite document ID.
+  const [showDetails, setShowDetails] = useState(false)
+
   const id = property.id || property.$id
-
-  // Protect the component when a property has no status.
   const status: PropertyStatus = property.status || 'Pending'
-
   const title = property.title || 'Untitled property'
   const imageUrl = property.imageUrl || ''
 
   return (
     <article className="admin-property">
-
       {imageUrl ? (
         <img
           src={imageUrl}
@@ -67,17 +81,12 @@ export default function AdminPropertyCard({
       )}
 
       <div className="admin-property-details">
-
-        <span
-          className={`status-label status-${status.toLowerCase()}`}
-        >
+        <span className={`status-label status-${status.toLowerCase()}`}>
           {status === 'Pending' && <Clock size={13} />}
           {status === 'Published' && <CheckCircle size={13} />}
           {status === 'Rejected' && <XCircle size={13} />}
 
-          {status === 'Pending'
-            ? 'Pending review'
-            : status}
+          {status === 'Pending' ? 'Pending review' : status}
         </span>
 
         <h3>{title}</h3>
@@ -100,23 +109,27 @@ export default function AdminPropertyCard({
         </p>
 
         <div className="admin-actions">
-
           <button
             type="button"
             className="view-image-button"
             disabled={!imageUrl}
             onClick={() => {
               if (imageUrl) {
-                window.open(
-                  imageUrl,
-                  '_blank',
-                  'noopener,noreferrer'
-                )
+                window.open(imageUrl, '_blank', 'noopener,noreferrer')
               }
             }}
           >
             <Eye size={15} />
             View image
+          </button>
+
+          <button
+            type="button"
+            className="view-image-button"
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+            {showDetails ? 'Hide Details' : 'View Details'}
           </button>
 
           {status !== 'Published' && (
@@ -152,8 +165,63 @@ export default function AdminPropertyCard({
           >
             <Trash2 size={15} />
           </button>
-
         </div>
+
+        {showDetails && (
+          <div className="admin-full-details">
+            <h4>Property information</h4>
+
+            <p><strong>Title:</strong> {title}</p>
+            <p><strong>Description:</strong> {property.description || 'Not provided'}</p>
+            <p><strong>Country:</strong> {property.countryCode || 'Not provided'}</p>
+            <p><strong>City:</strong> {property.city || 'Not provided'}</p>
+            <p><strong>Area:</strong> {property.area || 'Not provided'}</p>
+            <p><strong>Property type:</strong> {property.type || 'Not provided'}</p>
+            <p><strong>Listing type:</strong> {property.listingType || 'Not provided'}</p>
+            <p><strong>Price:</strong> {formatPrice(property)}</p>
+
+            <p>
+              <BedDouble size={15} /> Bedrooms: {property.bedrooms ?? 'Not provided'}
+            </p>
+
+            <p>
+              <Bath size={15} /> Bathrooms: {property.bathrooms ?? 'Not provided'}
+            </p>
+
+            <p>
+              <Ruler size={15} /> Size: {property.size ?? 'Not provided'}
+            </p>
+
+            <p><strong>Status:</strong> {status}</p>
+
+            <hr />
+
+            <h4>Owner information</h4>
+
+            <p>
+              <User size={15} /> Name: {property.ownerName || 'Not provided'}
+            </p>
+
+            <p>
+              <Phone size={15} /> Phone: {property.ownerPhone || 'Not provided'}
+            </p>
+
+            <p>
+              <Mail size={15} /> Email: {property.ownerEmail || 'Not provided'}
+            </p>
+
+            {imageUrl && (
+              <>
+                <h4>Property photo</h4>
+                <img
+                  src={imageUrl}
+                  alt="Full property"
+                  className="admin-detail-image"
+                />
+              </>
+            )}
+          </div>
+        )}
       </div>
     </article>
   )
