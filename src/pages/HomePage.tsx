@@ -8,6 +8,8 @@ import {
   OwnerInvitation,
 } from '../components/home'
 
+import IntroductionSection from '../components/home/IntroductionSection'
+
 import type {
   CountryCode,
   Property,
@@ -53,6 +55,7 @@ export default function HomePage({
   kind,
   listing,
   query,
+  language,
   t,
   properties,
   trendingProperties,
@@ -73,6 +76,8 @@ export default function HomePage({
   return (
     <main>
       <HeroSection t={t} />
+
+      <IntroductionSection language={language} />
 
       <section className="search-section" id="discover">
         <SearchPanel
