@@ -483,10 +483,12 @@ button {
   box-shadow: 0 20px 50px rgba(15, 39, 25, .15);
 }
 
+
 .hero-image {
   position: absolute;
   inset: 0;
   z-index: -2;
+  background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=85');
   background-size: cover;
   background-position: center;
   transform: scale(1.04);
@@ -497,10 +499,9 @@ button {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background:
-    linear-gradient(90deg, rgba(7,27,17,.91), rgba(11,36,22,.64) 52%, rgba(11,36,22,.12)),
-    linear-gradient(0deg, rgba(7,27,17,.36), transparent 60%);
+  background: rgba(7, 27, 17, 0.65);
 }
+
 
 .hero-content {
   position: relative;
