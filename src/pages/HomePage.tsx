@@ -17,6 +17,8 @@ import type {
   PropertyKind,
 } from '../types'
 
+import RecentlyAddedProperties from '../components/home/RecentlyAddedProperties'
+
 type Translation = Record<string, string>
 
 interface HomePageProps {
@@ -119,6 +121,16 @@ export default function HomePage({
           onResetFilters={onResetFilters}
           onPropertyClick={onPropertyClick}
         />
+       <RecentlyAddedProperties
+  properties={properties}
+  likes={likes}
+  liked={liked}
+  language={language}
+  t={t}
+  onLike={onLike}
+  onViewAll={onViewAll}
+  onPropertyClick={onPropertyClick}
+/>
       </section>
 
       <TrendingProperties
