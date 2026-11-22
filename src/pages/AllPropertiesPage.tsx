@@ -17,12 +17,18 @@ interface AllPropertiesPageProps {
   properties: Property[]
   likes: Record<string, number>
   liked: string[]
+  initialFilters: {
+    search: string
+    country: 'All' | CountryCode
+    city: string
+    type: 'All' | PropertyKind
+    listing: 'All' | 'Rent' | 'Sale'
+  }
   onLike: (title: string) => void
   onBack: () => void
   onPropertyClick: (property: Property) => void
   t: Record<string, string>
 }
-
 const cities: Record<CountryCode, string[]> = {
   MW: ['Lilongwe', 'Blantyre', 'Mzuzu'],
   CD: ['Lubumbashi', 'Kinshasa', 'Kolwezi'],
