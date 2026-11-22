@@ -1,5 +1,4 @@
-
-import type { PropertyKind } from '../../types'
+import type { PropertyKind } from '../types'
 
 interface PropertyTypesSectionProps {
   language: 'en' | 'fr'
