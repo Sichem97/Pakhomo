@@ -153,12 +153,12 @@ export default function HomePage({
 
       <RealEstateInsightsSection language={language} />
 
+      <TrustSection t={t} />
+
       <OwnerInvitation
         t={t}
         onListProperty={onListProperty}
       />
-
-      <TrustSection t={t} />
 
     </main>
   )
