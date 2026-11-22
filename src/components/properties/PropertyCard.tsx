@@ -1,9 +1,12 @@
 
+import { useState } from 'react'
+
 import {
   BadgeCheck,
   BedDouble,
   Heart,
   MapPin,
+  ImageOff,
 } from 'lucide-react'
 
 import type { Property, PropertyKind } from '../../types'
@@ -34,13 +37,19 @@ interface PropertyCardProps {
   t: Translation
 }
 
-function formatMoney(value: number, currency: Property['currency']) {
+function formatMoney(
+  value: number,
+  currency: Property['currency']
+) {
   return new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 0,
   }).format(value) + ' ' + currency
 }
 
-function getPropertyType(type: PropertyKind, t: Translation) {
+function getPropertyType(
+  type: PropertyKind,
+  t: Translation
+) {
   const labels: Record<PropertyKind, string> = {
     House: t.house,
     Apartment: t.apartment,
@@ -62,6 +71,11 @@ export default function PropertyCard({
   index = 0,
   t,
 }: PropertyCardProps) {
+  const [imageError, setImageError] = useState(false)
+
+  const imageAvailable =
+    Boolean(property.imageUrl) && !imageError
+
   return (
     <article
       className="property-card"
@@ -71,23 +85,38 @@ export default function PropertyCard({
       }}
       role="button"
       tabIndex={0}
+      aria-label={`View property: ${property.title}`}
       onClick={onClick}
       onKeyDown={event => {
-        if (event.key === 'Enter' || event.key === ' ') {
+        if (
+          (event.key === 'Enter' || event.key === ' ') &&
+          !(event.target instanceof HTMLElement &&
+            event.target.closest('button'))
+        ) {
           event.preventDefault()
           onClick()
         }
       }}
     >
       <div className="property-photo">
-        <img
-          src={property.imageUrl}
-          alt={property.title}
-          loading="lazy"
-        />
+        {imageAvailable ? (
+          <img
+            src={property.imageUrl}
+            alt={property.title}
+            loading="lazy"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="property-image-fallback">
+            <ImageOff size={30} />
+            <span>Image unavailable</span>
+          </div>
+        )}
 
         <span className="type-pill">
-          {property.listingType === 'Rent' ? t.rent : t.sale}
+          {property.listingType === 'Rent'
+            ? t.rent
+            : t.sale}
         </span>
 
         <button
@@ -97,7 +126,10 @@ export default function PropertyCard({
             event.stopPropagation()
             onLike()
           }}
-          aria-label={liked ? 'Unlike property' : 'Like property'}
+          aria-label={
+            liked ? 'Unlike property' : 'Like property'
+          }
+          aria-pressed={liked}
         >
           <Heart
             size={17}
@@ -109,13 +141,17 @@ export default function PropertyCard({
       <div className="property-info">
         <div className="property-location">
           <MapPin size={14} />
-          {property.area}, {property.city}
+          <span>
+            {property.area}, {property.city}
+          </span>
         </div>
 
         <h3>{property.title}</h3>
 
         <div className="property-meta">
-          <span>{getPropertyType(property.type, t)}</span>
+          <span>
+            {getPropertyType(property.type, t)}
+          </span>
 
           {property.bedrooms !== undefined && (
             <span>
@@ -132,8 +168,9 @@ export default function PropertyCard({
         </div>
 
         <div className="property-bottom">
-          <strong>
+          <strong className="property-price">
             {formatMoney(property.price, property.currency)}
+
             <small>
               {property.listingType === 'Rent'
                 ? ` ${t.month}`
