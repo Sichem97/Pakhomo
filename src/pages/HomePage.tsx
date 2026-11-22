@@ -23,6 +23,8 @@ import WhyChooseSection from '../components/home/WhyChooseSection'
 
 import HowItWorksSection from '../components/home/HowItWorksSection'
 
+import RealEstateInsightsSection from '../components/home/RealEstateInsightsSection'
+
 type Translation = Record<string, string>
 
 interface HomePageProps {
@@ -148,6 +150,8 @@ export default function HomePage({
      <WhyChooseSection language={language} />
 
       <HowItWorksSection language={language} />
+
+<RealEstateInsightsSection language={language} />
 
       <TrustSection t={t} />
 
