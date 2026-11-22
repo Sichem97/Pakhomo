@@ -1,4 +1,3 @@
-
 import {
   HeroSection,
   SearchPanel,
@@ -10,6 +9,7 @@ import {
 
 import IntroductionSection from '../components/home/IntroductionSection'
 import PropertyTypesSection from '../components/home/PropertyTypesSection'
+import PopularLocationsSection from '../components/home/PopularLocationsSection'
 
 import type {
   CountryCode,
@@ -83,6 +83,12 @@ export default function HomePage({
       <PropertyTypesSection
         language={language}
         onSelectType={onKindChange}
+      />
+
+      <PopularLocationsSection
+        country={country}
+        language={language}
+        onSelectCity={onCityChange}
       />
 
       <section className="search-section" id="discover">
