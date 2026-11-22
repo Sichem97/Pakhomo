@@ -1,4 +1,140 @@
 
+/* HOW IT WORKS */
+
+.how-it-works-section {
+  padding: 85px 5%;
+  background: #F8F5EE;
+}
+
+.how-it-works-container {
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
+.how-it-works-heading {
+  max-width: 650px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+
+.how-it-works-eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #C69B54;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.how-it-works-heading h2 {
+  margin: 0 0 15px;
+  color: #153D2A;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(29px, 4vw, 42px);
+  line-height: 1.2;
+}
+
+.how-it-works-heading p {
+  color: #777;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.how-it-works-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.how-it-works-card {
+  position: relative;
+  padding: 28px 23px;
+  min-height: 220px;
+  background: #fff;
+  border: 1px solid #EAE5DA;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(21, 61, 42, .04);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.how-it-works-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(21, 61, 42, .10);
+}
+
+.how-it-works-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 27px;
+}
+
+.how-it-works-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
+  background: #EDF3EE;
+  color: #153D2A;
+}
+
+.how-it-works-number {
+  color: #C69B54;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.how-it-works-card h3 {
+  margin: 0 0 11px;
+  color: #153D2A;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.how-it-works-card p {
+  margin: 0;
+  color: #777;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.how-it-works-arrow {
+  position: absolute;
+  top: 45px;
+  right: -21px;
+  z-index: 2;
+  color: #C69B54;
+}
+
+@media (max-width: 1000px) {
+  .how-it-works-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .how-it-works-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .how-it-works-section {
+    padding: 60px 5%;
+  }
+
+  .how-it-works-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .how-it-works-card {
+    min-height: auto;
+  }
+}
+
+
+
 /* WHY CHOOSE PAKHOMO */
 
 .why-choose-section {
