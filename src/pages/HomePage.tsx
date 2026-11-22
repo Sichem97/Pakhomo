@@ -9,6 +9,7 @@ import {
 } from '../components/home'
 
 import IntroductionSection from '../components/home/IntroductionSection'
+import PropertyTypesSection from '../components/home/PropertyTypesSection'
 
 import type {
   CountryCode,
@@ -78,6 +79,11 @@ export default function HomePage({
       <HeroSection t={t} />
 
       <IntroductionSection language={language} />
+
+      <PropertyTypesSection
+        language={language}
+        onSelectType={onKindChange}
+      />
 
       <section className="search-section" id="discover">
         <SearchPanel
