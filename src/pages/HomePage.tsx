@@ -21,6 +21,8 @@ import RecentlyAddedProperties from '../components/home/RecentlyAddedProperties'
 
 import WhyChooseSection from '../components/home/WhyChooseSection'
 
+import HowItWorksSection from '../components/home/HowItWorksSection'
+
 type Translation = Record<string, string>
 
 interface HomePageProps {
@@ -144,6 +146,8 @@ export default function HomePage({
       />
 
      <WhyChooseSection language={language} />
+
+      <HowItWorksSection language={language} />
 
       <TrustSection t={t} />
 
