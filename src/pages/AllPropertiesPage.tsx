@@ -38,16 +38,17 @@ export default function AllPropertiesPage({
   properties,
   likes,
   liked,
+  initialFilters,
   onLike,
   onBack,
   onPropertyClick,
   t,
 }: AllPropertiesPageProps) {
-  const [search, setSearch] = useState('')
-  const [country, setCountry] = useState<'All' | CountryCode>('All')
-  const [city, setCity] = useState('All')
-  const [type, setType] = useState<'All' | PropertyKind>('All')
-  const [listing, setListing] = useState<'All' | 'Rent' | 'Sale'>('All')
+  const [search, setSearch] = useState(initialFilters.search)
+const [country, setCountry] = useState<'All' | CountryCode>(initialFilters.country)
+const [city, setCity] = useState(initialFilters.city)
+const [type, setType] = useState<'All' | PropertyKind>(initialFilters.type)
+const [listing, setListing] = useState<'All' | 'Rent' | 'Sale'>(initialFilters.listing)
 
   const filteredProperties = useMemo(() => {
     const searchTerm = search.trim().toLowerCase()
