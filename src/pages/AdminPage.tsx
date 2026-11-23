@@ -469,15 +469,6 @@ export default function AdminPage({ onBack }: AdminPageProps) {
       )}
 
       <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <div className="admin-brand">
-          <div className="admin-brand-icon">
-            <Building2 size={23} />
-          </div>
-          <div>
-            <strong>PAKHOMO</strong>
-            <small>ADMINISTRATION</small>
-          </div>
-        </div>
 
         <div className="admin-nav-label">WORKSPACE</div>
 
