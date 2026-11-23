@@ -52,7 +52,7 @@ export default function HowItWorksSection({
   ]
 
   return (
-    <section className="how-it-works-section">
+    <section className="how-it-works-section" id="how">
       <div className="how-it-works-container">
         <div className="how-it-works-heading">
           <span className="how-it-works-eyebrow">
