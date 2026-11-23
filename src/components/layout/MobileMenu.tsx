@@ -107,7 +107,7 @@ export default function MobileMenu({
         {t.howItWorks}
       </a>
 
-      <a href="#list-property" onClick={onClose}>
+      <a href="/list-property" onClick={onClose}>
         {t.listProperty}
       </a>
 
