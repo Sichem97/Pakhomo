@@ -35,7 +35,7 @@ import type { Property } from '../types'
 
 import './AdminPage.css'
 
-type PropertyStatus = 'Pending' | 'Published' | 'Rejected'
+export type PropertyStatus = 'Pending' | 'Published' | 'Rejected'
 type DashboardTab =
   | 'overview'
   | 'pending'
@@ -43,7 +43,7 @@ type DashboardTab =
   | 'rejected'
   | 'trends'
 
-interface AdminProperty extends Property {
+export interface AdminProperty extends Property {
   id?: string
   status: PropertyStatus
   createdAt?: string
