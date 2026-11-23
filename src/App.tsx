@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { Header, Footer } from './components/layout'
-
 import AdminErrorBoundary from './components/admin/AdminErrorBoundary'
 
 import {
@@ -22,6 +21,10 @@ import {
   appwriteConfigured,
   submitPropertyToAPI,
   getApprovedProperties,
+  getLikedPropertyIds,
+  saveLikedPropertyIds,
+  likeProperty,
+  unlikeProperty,
 } from './lib/appwrite'
 
 import {
@@ -71,8 +74,12 @@ export default function App() {
   const [listing, setListing] = useState<'All' | 'Rent' | 'Sale'>('All')
   const [query, setQuery] = useState('')
 
+  // Community likes
   const [likes, setLikes] = useState<Record<string, number>>({})
-  const [liked, setLiked] = useState<string[]>([])
+  const [liked, setLiked] = useState<string[]>(() =>
+    getLikedPropertyIds()
+  )
+  const [likingProperties, setLikingProperties] = useState<string[]>([])
 
   const [statuses, setStatuses] =
     useState<Record<string, Status>>(initialStatuses)
@@ -118,6 +125,16 @@ export default function App() {
       .then(properties => {
         if (active) {
           setApiProperties(properties)
+
+          const initialLikes: Record<string, number> = {}
+
+          properties.forEach(property => {
+            const id = getPropertyId(property)
+            initialLikes[id] = Number(property.likesCount) || 0
+          })
+
+          setLikes(initialLikes)
+          setLiked(getLikedPropertyIds())
         }
       })
       .catch(error => {
@@ -244,14 +261,18 @@ export default function App() {
     query,
   ])
 
-  // Trending properties.
+  // Trending properties based on real Appwrite likes.
   const trendingProperties = useMemo(() => {
     if (publishedProperties.length === 0) return []
 
+    const getLikes = (property: Property) => {
+      const id = getPropertyId(property)
+      return likes[id] ?? Number(property.likesCount) ?? 0
+    }
+
     const averageLikes =
       publishedProperties.reduce(
-        (total, property) =>
-          total + (likes[property.title] || 0),
+        (total, property) => total + getLikes(property),
         0
       ) / publishedProperties.length
 
@@ -259,11 +280,10 @@ export default function App() {
       .filter(
         property =>
           averageLikes > 0 &&
-          (likes[property.title] || 0) >= averageLikes * 1.5
+          getLikes(property) >= averageLikes * 1.5
       )
       .sort(
-        (a, b) =>
-          (likes[b.title] || 0) - (likes[a.title] || 0)
+        (a, b) => getLikes(b) - getLikes(a)
       )
   }, [publishedProperties, likes])
 
@@ -335,23 +355,45 @@ export default function App() {
     }
   }
 
-  // Likes.
-  function toggleLike(title: string) {
-    const alreadyLiked = liked.includes(title)
+  // Like or unlike a property through Appwrite.
+  async function toggleLike(propertyId: string) {
+    if (!propertyId || likingProperties.includes(propertyId)) {
+      return
+    }
 
-    setLiked(current =>
-      alreadyLiked
-        ? current.filter(item => item !== title)
-        : [...current, title]
-    )
+    const alreadyLiked = liked.includes(propertyId)
 
-    setLikes(current => ({
-      ...current,
-      [title]: Math.max(
-        0,
-        (current[title] || 0) + (alreadyLiked ? -1 : 1)
-      ),
-    }))
+    setLikingProperties(current => [...current, propertyId])
+
+    try {
+      const response = alreadyLiked
+        ? await unlikeProperty(propertyId)
+        : await likeProperty(propertyId)
+
+      setLikes(current => ({
+        ...current,
+        [propertyId]: response.likesCount,
+      }))
+
+      const updatedLiked = response.liked
+        ? [...new Set([...liked, propertyId])]
+        : liked.filter(id => id !== propertyId)
+
+      setLiked(updatedLiked)
+      saveLikedPropertyIds(updatedLiked)
+    } catch (error) {
+      console.error('Unable to update property like:', error)
+
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : 'Unable to update your like. Please try again.'
+      )
+    } finally {
+      setLikingProperties(current =>
+        current.filter(id => id !== propertyId)
+      )
+    }
   }
 
   // Admin status management.
@@ -423,7 +465,7 @@ export default function App() {
             t={t}
           />
         </AdminErrorBoundary>
-           ) : page === 'properties' ? (
+      ) : page === 'properties' ? (
         <AllPropertiesPage
           properties={publishedProperties}
           likes={likes}
