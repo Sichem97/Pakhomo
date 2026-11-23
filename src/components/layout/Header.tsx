@@ -43,20 +43,63 @@ export default function Header({
 
   return (
     <header className="topbar">
+
+      {/* BRAND / HOME */}
       <a
         className="brand"
-        href="#"
+        href="/"
         onClick={closeMobileMenu}
+        aria-label="Pakhomo Africa Home"
       >
         <span className="brand-mark">
           <Building2 size={21} />
         </span>
 
         <span>
-          Pakhomo<span className="brand-light">africa</span>
+          Pakhomo
+          <span className="brand-light">africa</span>
         </span>
       </a>
 
+      {/* DESKTOP NAVIGATION */}
+      <nav className="desktop-nav" aria-label="Main navigation">
+
+        <a href="/#discover">
+          {t.discover}
+        </a>
+
+        <a href="/#how">
+          {t.howItWorks}
+        </a>
+
+      </nav>
+
+      {/* DESKTOP ACTIONS */}
+      <div className="header-actions">
+
+        <a
+          href="/list-property"
+          className="list-property-btn"
+        >
+          {t.listProperty}
+        </a>
+
+        {/* MOBILE MENU TOGGLE */}
+        <button
+          type="button"
+          className="mobile-toggle"
+          onClick={() =>
+            setMobileMenu(current => !current)
+          }
+          aria-label="Toggle menu"
+          aria-expanded={mobileMenu}
+        >
+          {mobileMenu ? <X /> : <Menu />}
+        </button>
+
+      </div>
+
+      {/* MOBILE MENU */}
       <MobileMenu
         isOpen={mobileMenu}
         onClose={closeMobileMenu}
@@ -69,19 +112,6 @@ export default function Header({
         t={t}
       />
 
-      <div className="header-actions">
-        <button
-          type="button"
-          className="mobile-toggle"
-          onClick={() =>
-            setMobileMenu(current => !current)
-          }
-          aria-label="Toggle menu"
-          aria-expanded={mobileMenu}
-        >
-          {mobileMenu ? <X /> : <Menu />}
-        </button>
-      </div>
     </header>
   )
 }
