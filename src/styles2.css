@@ -862,6 +862,7 @@
   background: var(--primary);
 }
 
+
 /* =====================================================
    PROPERTY TYPES SECTION
 ===================================================== */
@@ -891,73 +892,23 @@
   line-height: 1.8;
 }
 
-/* Tablets */
-@media (max-width: 950px) {
-  .property-types-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
+/* Main grid — 6 cards on desktop */
 
-/* Phones */
-@media (max-width: 760px) {
-  .property-types-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .property-type-card {
-    height: 145px;
-    border-radius: 12px;
-  }
-
-  .property-type-content {
-    right: 7px;
-    bottom: 9px;
-    left: 7px;
-    gap: 3px;
-  }
-
-  .property-type-content strong {
-    font-size: 13px;
-  }
-
-  .property-type-content small {
-    font-size: 10px;
-    line-height: 1.3;
-  }
-
-  .property-type-arrow {
-    display: none;
-  }
-}
-
-/* Small phones */
-@media (max-width: 420px) {
-  .property-types-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
-  }
-
-  .property-type-card {
-    height: 125px;
-  }
-
-  .property-type-content strong {
-    font-size: 12px;
-  }
-
-  .property-type-content small {
-    font-size: 9px;
-  }
+.property-types-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .property-type-card {
   position: relative;
-  isolation: isolate;
+  display: block;
+  width: 100%;
   min-width: 0;
   height: 230px;
   overflow: hidden;
   padding: 0;
+  isolation: isolate;
   text-align: left;
   color: white;
   background: var(--primary-dark);
@@ -994,9 +945,9 @@
 
 .property-type-content {
   position: absolute;
-  right: 20px;
-  bottom: 20px;
-  left: 20px;
+  right: 12px;
+  bottom: 15px;
+  left: 12px;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -1005,33 +956,100 @@
 .property-type-content strong {
   color: white;
   font-family: 'Manrope', sans-serif;
-  font-size: 21px;
+  font-size: 16px;
   font-weight: 800;
 }
 
 .property-type-content small {
   color: rgba(255, 255, 255, .82);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .property-type-arrow {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 37px;
-  height: 37px;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   color: var(--primary-dark);
   background: rgba(255, 255, 255, .93);
   border-radius: 50%;
-  font-size: 18px;
-  transition: transform .25s ease, background .25s ease;
+  font-size: 16px;
 }
 
 .property-type-card:hover .property-type-arrow {
   transform: rotate(45deg);
   background: #e8c98f;
+}
+
+/* Tablets */
+
+@media (max-width: 950px) {
+  .property-types-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Phones */
+
+@media (max-width: 760px) {
+  .property-types-section {
+    width: calc(100% - 28px);
+    margin: 50px auto;
+  }
+
+  .property-types-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .property-type-card {
+    height: 145px;
+    border-radius: 12px;
+  }
+
+  .property-type-content {
+    right: 7px;
+    bottom: 9px;
+    left: 7px;
+    gap: 3px;
+  }
+
+  .property-type-content strong {
+    font-size: 13px;
+  }
+
+  .property-type-content small {
+    font-size: 10px;
+  }
+
+  .property-type-arrow {
+    display: none;
+  }
+}
+
+/* Small phones */
+
+@media (max-width: 420px) {
+  .property-types-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .property-type-card {
+    height: 125px;
+  }
+
+  .property-type-content strong {
+    font-size: 12px;
+  }
+
+  .property-type-content small {
+    font-size: 9px;
+  }
 }
 
 /* =====================================================
@@ -1054,15 +1072,15 @@
     margin: 50px auto;
   }
 
-  .property-types-grid {
+/*.property-types-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
-  }
+  }*/
 
-  .property-type-card {
+/*.property-type-card {
     height: 190px;
     border-radius: 15px;
-  }
+  }*/
 
   .property-type-content {
     right: 12px;
