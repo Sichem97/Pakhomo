@@ -891,10 +891,64 @@
   line-height: 1.8;
 }
 
-.property-types-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+/* Tablets */
+@media (max-width: 950px) {
+  .property-types-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Phones */
+@media (max-width: 760px) {
+  .property-types-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .property-type-card {
+    height: 145px;
+    border-radius: 12px;
+  }
+
+  .property-type-content {
+    right: 7px;
+    bottom: 9px;
+    left: 7px;
+    gap: 3px;
+  }
+
+  .property-type-content strong {
+    font-size: 13px;
+  }
+
+  .property-type-content small {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  .property-type-arrow {
+    display: none;
+  }
+}
+
+/* Small phones */
+@media (max-width: 420px) {
+  .property-types-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .property-type-card {
+    height: 125px;
+  }
+
+  .property-type-content strong {
+    font-size: 12px;
+  }
+
+  .property-type-content small {
+    font-size: 9px;
+  }
 }
 
 .property-type-card {
