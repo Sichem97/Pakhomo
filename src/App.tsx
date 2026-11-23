@@ -423,11 +423,18 @@ export default function App() {
             t={t}
           />
         </AdminErrorBoundary>
-      ) : page === 'properties' ? (
+           ) : page === 'properties' ? (
         <AllPropertiesPage
           properties={publishedProperties}
           likes={likes}
           liked={liked}
+          initialFilters={{
+            search: query,
+            country,
+            city: city === 'All cities' ? 'All' : city,
+            type: kind === 'All types' ? 'All' : kind,
+            listing,
+          }}
           onLike={toggleLike}
           onBack={navigateHome}
           onPropertyClick={openProperty}
