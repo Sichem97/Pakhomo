@@ -18,7 +18,7 @@
   flex-direction: column;
   padding: 25px 17px;
   color: #fff;
-  background: #142b4a;
+  background: var(--primary);
 }
 
 .admin-brand {
