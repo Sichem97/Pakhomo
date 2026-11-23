@@ -122,6 +122,64 @@ export default function AdminPage({
   }, [])
 
   // ==========================================
+  // AUTOMATIC LOGOUT AFTER 2 MINUTES INACTIVE
+  // ==========================================
+
+  useEffect(() => {
+    if (!authenticated) return
+
+    let timeoutId: number
+
+    async function logoutAfterInactivity() {
+      try {
+        await adminLogout()
+      } catch (error) {
+        console.error('Automatic logout failed:', error)
+      } finally {
+        setAuthenticated(false)
+        setProperties([])
+        setEmail('')
+        setPassword('')
+        setSuccessMessage(
+          'Your session expired after 2 minutes of inactivity. Please sign in again.'
+        )
+      }
+    }
+
+    function resetTimer() {
+      window.clearTimeout(timeoutId)
+
+      timeoutId = window.setTimeout(
+        logoutAfterInactivity,
+        5 * 60 * 1000
+      )
+    }
+
+    const activityEvents = [
+      'mousedown',
+      'mousemove',
+      'keydown',
+      'touchstart',
+      'scroll',
+      'click',
+    ]
+
+    activityEvents.forEach(event => {
+      window.addEventListener(event, resetTimer)
+    })
+
+    resetTimer()
+
+    return () => {
+      window.clearTimeout(timeoutId)
+
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, resetTimer)
+      })
+    }
+  }, [authenticated])
+
+  // ==========================================
   // ADMIN LOGIN
   // ==========================================
 
