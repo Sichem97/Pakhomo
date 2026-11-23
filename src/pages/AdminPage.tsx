@@ -676,27 +676,52 @@ export default function AdminPage({ onBack }: AdminPageProps) {
                   </p>
                 </div>
               ) : (
-                <div className="admin-trend-list">
-                  {monthlyData.map(month => (
-                    <div className="admin-trend-row" key={month.label}>
-                      <span>{month.label}</span>
-                      <div className="admin-trend-track">
-                        <div
-                          className="admin-trend-fill"
-                          style={{
-                            width: `${Math.max(
-                              2,
-                              (month.count /
-                                Math.max(1, ...monthlyData.map(m => m.count))) *
-                                100
-                            )}%`,
-                          }}
-                        />
-                      </div>
-                      <strong>{month.count}</strong>
-                    </div>
-                  ))}
-                </div>
+                <div className="admin-3d-chart">
+  <div className="admin-chart-grid">
+    {[100, 75, 50, 25, 0].map(value => (
+      <div className="admin-chart-gridline" key={value}>
+        <span>{Math.ceil(
+          (Math.max(1, ...monthlyData.map(m => m.count)) * value) / 100
+        )}</span>
+      </div>
+    ))}
+  </div>
+
+  <div className="admin-3d-bars">
+    {monthlyData.map((month, index) => {
+      const maxCount = Math.max(
+        1,
+        ...monthlyData.map(item => item.count)
+      )
+
+      const height = month.count > 0
+        ? Math.max(5, (month.count / maxCount) * 100)
+        : 0
+
+      return (
+        <div className="admin-3d-bar-group" key={month.label}>
+          <strong className="admin-3d-value">{month.count}</strong>
+
+          <div className="admin-3d-bar-area">
+            <div
+              className="admin-3d-bar"
+              style={{
+                height: `${height}%`,
+                animationDelay: `${index * 180}ms`,
+              }}
+            >
+              <span className="admin-3d-front" />
+              <span className="admin-3d-side" />
+              <span className="admin-3d-top" />
+            </div>
+          </div>
+
+          <span className="admin-3d-month">{month.label}</span>
+        </div>
+      )
+    })}
+  </div>
+</div>
               )}
             </section>
           )}
