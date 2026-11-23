@@ -11,6 +11,7 @@ const locations: Record<
   CountryCode,
   {
     city: string
+    landmark: string
     image: string
     description: { en: string; fr: string }
   }[]
@@ -18,33 +19,42 @@ const locations: Record<
   MW: [
     {
       city: 'Lilongwe',
-      image: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=85',
+      landmark: 'Parliament Building',
+      image:
+        'https://upload.wikimedia.org/wikipedia/commons/9/9d/Parliamentbuilding.jpg',
       description: {
-        en: 'Discover properties in the capital',
-        fr: 'Découvrez les biens dans la capitale',
+        en: 'Explore opportunities in the capital',
+        fr: 'Explorez les opportunités dans la capitale',
       },
     },
     {
       city: 'Blantyre',
-      image: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=85',
+      landmark: 'St Michael Clock Tower',
+      image:
+        'https://upload.wikimedia.org/wikipedia/commons/c/ce/St_Michael_and_All_Angels_Church%2C_Blantyre%2C_Malawi_Clock_Tower.JPG',
       description: {
-        en: 'Explore commercial and residential spaces',
-        fr: 'Explorez les espaces commerciaux et résidentiels',
+        en: 'Discover properties in the commercial city',
+        fr: 'Découvrez les biens dans la capitale commerciale',
       },
     },
     {
       city: 'Mzuzu',
-      image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=900&q=85',
+      landmark: 'Mzuzu City',
+      image:
+        'https://upload.wikimedia.org/wikipedia/commons/2/28/Mzuzu%2C_Malawi.jpg',
       description: {
-        en: 'Find your next opportunity',
-        fr: 'Trouvez votre prochaine opportunité',
+        en: 'Find your next opportunity in the north',
+        fr: 'Trouvez votre prochaine opportunité dans le nord',
       },
     },
   ],
+
   CD: [
     {
       city: 'Lubumbashi',
-      image: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=900&q=85',
+      landmark: 'Gécamines Headquarters',
+      image:
+        'https://forrestgroup.com/content/uploads/2019/05/gecamines-lubumbashi-renovation-groupe-forrest.jpg',
       description: {
         en: 'Explore properties in the copper capital',
         fr: 'Explorez les biens dans la capitale du cuivre',
@@ -52,7 +62,9 @@ const locations: Record<
     },
     {
       city: 'Kinshasa',
-      image: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=900&q=85',
+      landmark: 'Échangeur de Limete',
+      image:
+        'https://upload.wikimedia.org/wikipedia/commons/e/e3/Tour_de_l%E2%80%99%C3%89changeur_de_Limete_%C3%A0_Kinshasa%2C_R%C3%A9publique_d%C3%A9mocratique_du_Congo.jpg',
       description: {
         en: 'Discover opportunities in the capital',
         fr: 'Découvrez les opportunités dans la capitale',
@@ -60,10 +72,12 @@ const locations: Record<
     },
     {
       city: 'Kolwezi',
-      image: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=900&q=85',
+      landmark: 'Rond-point Mwangeji',
+      image:
+        'https://upload.wikimedia.org/wikipedia/commons/1/16/Mwangeji.jpg',
       description: {
-        en: 'Find a place in a growing city',
-        fr: 'Trouvez un bien dans une ville en pleine croissance',
+        en: 'Find a place in the cobalt capital',
+        fr: 'Trouvez un bien dans la capitale du cobalt',
       },
     },
   ],
@@ -82,7 +96,9 @@ export default function PopularLocationsSection({
       <div className="popular-locations-heading">
         <div>
           <span className="overline">
-            {isFrench ? 'DESTINATIONS RECHERCHÉES' : 'EXPLORE BY LOCATION'}
+            {isFrench
+              ? 'DESTINATIONS RECHERCHÉES'
+              : 'EXPLORE BY LOCATION'}
           </span>
 
           <h2>
@@ -106,10 +122,11 @@ export default function PopularLocationsSection({
             className="popular-location-card"
             key={location.city}
             onClick={() => onSelectCity(location.city)}
+            aria-label={`${location.city} - ${location.landmark}`}
           >
             <img
               src={location.image}
-              alt={location.city}
+              alt={`${location.landmark}, ${location.city}`}
               loading="lazy"
             />
 
