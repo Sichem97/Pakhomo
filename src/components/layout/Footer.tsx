@@ -1,7 +1,5 @@
 import {
   Building2,
-  Menu,
-  X,
 } from 'lucide-react'
 
 interface FooterProps {
