@@ -10,13 +10,17 @@ interface RecentlyAddedPropertiesProps {
   liked: string[]
   language: 'en' | 'fr'
   t: Record<string, string>
-  onLike: (title: string) => void
+  onLike: (propertyId: string) => void
   onViewAll: () => void
   onPropertyClick: (property: Property) => void
 }
 
 type PropertyWithDate = Property & {
   createdAt?: string
+}
+
+function getPropertyId(property: Property): string {
+  return property.id || property.$id || property.title
 }
 
 export default function RecentlyAddedProperties({
@@ -30,10 +34,9 @@ export default function RecentlyAddedProperties({
   onPropertyClick,
 }: RecentlyAddedPropertiesProps) {
   const recentProperties = [...properties]
-    .filter((property) => {
-      const createdAt = (property as PropertyWithDate).createdAt
-      return Boolean(createdAt)
-    })
+    .filter(property =>
+      Boolean((property as PropertyWithDate).createdAt)
+    )
     .sort((a, b) => {
       const dateA = new Date(
         (a as PropertyWithDate).createdAt!
@@ -59,9 +62,7 @@ export default function RecentlyAddedProperties({
           </span>
 
           <h2>
-            {isFrench
-              ? 'Ajoutés récemment'
-              : 'Recently Added'}
+            {isFrench ? 'Ajoutés récemment' : 'Recently Added'}
           </h2>
 
           <p>
@@ -83,31 +84,33 @@ export default function RecentlyAddedProperties({
 
       {recentProperties.length > 0 ? (
         <div className="recent-properties-grid">
-          {recentProperties.map((property, index) => (
-            <PropertyCard
-              key={
-                property.$id ||
-                property.id ||
-                property.title
-              }
-              property={property}
-              likes={likes[property.title] || 0}
-              liked={liked.includes(property.title)}
-              onLike={() => onLike(property.title)}
-              onClick={() => onPropertyClick(property)}
-              index={index}
-              t={t as never}
-            />
-          ))}
+          {recentProperties.map((property, index) => {
+            const propertyId = getPropertyId(property)
+
+            return (
+              <PropertyCard
+                key={propertyId}
+                property={property}
+                likes={likes[propertyId] ?? Number(property.likesCount) ?? 0}
+                liked={liked.includes(propertyId)}
+                onLike={() => onLike(propertyId)}
+                onClick={() => onPropertyClick(property)}
+                index={index}
+                t={t as never}
+              />
+            )
+          })}
         </div>
       ) : (
         <div className="recent-properties-empty">
           <Clock3 size={25} />
+
           <h3>
             {isFrench
               ? 'Aucune nouvelle annonce pour le moment'
               : 'No recent listings yet'}
           </h3>
+
           <p>
             {isFrench
               ? 'Les nouvelles propriétés apparaîtront ici dès leur publication.'
