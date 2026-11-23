@@ -42,6 +42,9 @@ export interface Property {
   ownerPhone?: string
   ownerEmail?: string
 
-  // Verification
+    // Verification
   verified: boolean
+
+  // Community engagement
+  likesCount?: number
 }
