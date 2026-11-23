@@ -95,15 +95,15 @@ export default function MobileMenu({
 
       </div>
 
-      <a href="#discover" onClick={onClose}>
+      <a href="/#discover" onClick={onClose}>
         {t.discover}
       </a>
 
-      <a href="#trending" onClick={onClose}>
+      <a href="/#trending" onClick={onClose}>
         Trending
       </a>
 
-      <a href="#how" onClick={onClose}>
+      <a href="/#how" onClick={onClose}>
         {t.howItWorks}
       </a>
 
