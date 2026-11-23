@@ -64,15 +64,19 @@ export default function Header({
       {/* DESKTOP NAVIGATION */}
       <nav className="desktop-nav" aria-label="Main navigation">
 
-        <a href="/#discover">
-          {t.discover}
-        </a>
+  <a href="/#discover">
+    {t.discover}
+  </a>
 
-        <a href="/#how">
-          {t.howItWorks}
-        </a>
+  <a href="/#trending">
+    Trending
+  </a>
 
-      </nav>
+  <a href="/#how">
+    {t.howItWorks}
+  </a>
+
+</nav>
 
       {/* DESKTOP ACTIONS */}
       <div className="header-actions">
