@@ -67,13 +67,6 @@ export default function Header({
       {/* DESKTOP ACTIONS */}
       <div className="header-actions">
 
-        <a
-          href="/list-property"
-          className="list-property-btn"
-        >
-          {t.listProperty}
-        </a>
-
         {/* MOBILE MENU TOGGLE */}
         <button
           type="button"
