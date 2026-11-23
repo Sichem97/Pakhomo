@@ -84,6 +84,152 @@ async function executeAPI(
 }
 
 // ==========================================
+// ANONYMOUS VISITOR IDENTITY
+// ==========================================
+
+const VISITOR_STORAGE_KEY = 'pakhomo_visitor_id'
+const LIKED_PROPERTIES_KEY = 'pakhomo_liked_properties'
+
+let cachedVisitorId: string | null = null
+
+function generateVisitorId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID().replace(/-/g, '')
+  }
+
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const bytes = new Uint8Array(24)
+    crypto.getRandomValues(bytes)
+
+    return Array.from(bytes)
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('')
+  }
+
+  throw new Error('Secure visitor ID generation is unavailable.')
+}
+
+export function getVisitorId(): string {
+  if (cachedVisitorId) return cachedVisitorId
+
+  if (typeof window === 'undefined') {
+    throw new Error('Visitor identity is only available in the browser.')
+  }
+
+  try {
+    let visitorId = localStorage.getItem(VISITOR_STORAGE_KEY)
+
+    if (!visitorId) {
+      visitorId = generateVisitorId()
+      localStorage.setItem(VISITOR_STORAGE_KEY, visitorId)
+    }
+
+    cachedVisitorId = visitorId
+
+    return visitorId
+  } catch {
+    throw new Error('Unable to access visitor storage.')
+  }
+}
+
+// ==========================================
+// LOCAL LIKED PROPERTY IDENTITIES
+// ==========================================
+
+export function getLikedPropertyIds(): string[] {
+  if (typeof window === 'undefined') return []
+
+  try {
+    const saved = localStorage.getItem(LIKED_PROPERTIES_KEY)
+
+    if (!saved) return []
+
+    const parsed = JSON.parse(saved)
+
+    return Array.isArray(parsed)
+      ? parsed.filter((id): id is string => typeof id === 'string')
+      : []
+  } catch {
+    return []
+  }
+}
+
+export function saveLikedPropertyIds(ids: string[]): void {
+  if (typeof window === 'undefined') return
+
+  try {
+    localStorage.setItem(
+      LIKED_PROPERTIES_KEY,
+      JSON.stringify([...new Set(ids)])
+    )
+  } catch {
+    throw new Error('Unable to save your liked properties.')
+  }
+}
+
+// ==========================================
+// PROPERTY LIKE TYPES
+// ==========================================
+
+export interface PropertyLikeResponse {
+  success: boolean
+  liked: boolean
+  likesCount: number
+}
+
+// ==========================================
+// LIKE PROPERTY
+// ==========================================
+
+export async function likeProperty(
+  propertyId: string
+): Promise<PropertyLikeResponse> {
+  if (!propertyId) {
+    throw new Error('Property ID is required.')
+  }
+
+  const visitorId = getVisitorId()
+
+  const result = await executeAPI(
+    `/properties/${encodeURIComponent(propertyId)}/like`,
+    ExecutionMethod.POST,
+    JSON.stringify({ visitorId })
+  )
+
+  return {
+    success: result.success,
+    liked: result.liked,
+    likesCount: Number(result.likesCount) || 0,
+  }
+}
+
+// ==========================================
+// UNLIKE PROPERTY
+// ==========================================
+
+export async function unlikeProperty(
+  propertyId: string
+): Promise<PropertyLikeResponse> {
+  if (!propertyId) {
+    throw new Error('Property ID is required.')
+  }
+
+  const visitorId = getVisitorId()
+
+  const result = await executeAPI(
+    `/properties/${encodeURIComponent(propertyId)}/like`,
+    ExecutionMethod.DELETE,
+    JSON.stringify({ visitorId })
+  )
+
+  return {
+    success: result.success,
+    liked: result.liked,
+    likesCount: Number(result.likesCount) || 0,
+  }
+}
+
+// ==========================================
 // ADMINISTRATOR AUTHENTICATION
 // ==========================================
 
@@ -227,6 +373,7 @@ export async function getApprovedProperties(): Promise<Property[]> {
 
   return (result.properties || []).map((property: Property) => ({
     ...property,
+    likesCount: Number(property.likesCount) || 0,
     verified: true,
   }))
 }
