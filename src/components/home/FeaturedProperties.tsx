@@ -9,10 +9,14 @@ interface FeaturedPropertiesProps {
   likes: Record<string, number>
   liked: string[]
   t: Record<string, string>
-  onLike: (title: string) => void
+  onLike: (propertyId: string) => void
   onViewAll: () => void
   onResetFilters: () => void
   onPropertyClick: (property: Property) => void
+}
+
+function getPropertyId(property: Property): string {
+  return property.id || property.$id || property.title
 }
 
 export default function FeaturedProperties({
@@ -31,18 +35,22 @@ export default function FeaturedProperties({
     <>
       <div className="property-grid">
         {previewProperties.length > 0 ? (
-          previewProperties.map((property, index) => (
-            <PropertyCard
-              key={property.$id || property.id || property.title}
-              property={property}
-              likes={likes[property.title] || 0}
-              liked={liked.includes(property.title)}
-              onLike={() => onLike(property.title)}
-              onClick={() => onPropertyClick(property)}
-              index={index}
-              t={t as never}
-            />
-          ))
+          previewProperties.map((property, index) => {
+            const propertyId = getPropertyId(property)
+
+            return (
+              <PropertyCard
+                key={propertyId}
+                property={property}
+                likes={likes[propertyId] ?? Number(property.likesCount) ?? 0}
+                liked={liked.includes(propertyId)}
+                onLike={() => onLike(propertyId)}
+                onClick={() => onPropertyClick(property)}
+                index={index}
+                t={t as never}
+              />
+            )
+          })
         ) : (
           <div className="empty-state">
             <h3>{t.noProperties}</h3>
