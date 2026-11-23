@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   Home,
@@ -8,10 +8,16 @@ import {
   LogOut,
   Loader2,
   ShieldCheck,
+  LayoutDashboard,
+  Clock,
+  BadgeCheck,
+  XCircle,
+  TrendingUp,
+  Menu,
+  Building2,
 } from 'lucide-react'
 
 import {
-  AdminStats,
   AdminPropertyList,
 } from '../components/admin'
 
@@ -29,19 +35,19 @@ import type { Property } from '../types'
 
 import './AdminPage.css'
 
-export type PropertyStatus = 'Pending' | 'Published' | 'Rejected'
+type PropertyStatus = 'Pending' | 'Published' | 'Rejected'
+type DashboardTab =
+  | 'overview'
+  | 'pending'
+  | 'published'
+  | 'rejected'
+  | 'trends'
 
-export interface AdminProperty extends Property {
+interface AdminProperty extends Property {
+  id?: string
   status: PropertyStatus
-}
-
-interface AdminPageProps {
-  properties: AdminProperty[]
-  onApprove: (id: string) => void
-  onReject: (id: string) => void
-  onDelete: (id: string) => void
-  onBack: () => void
-  t: Record<string, string>
+  createdAt?: string
+  $createdAt?: string
 }
 
 function mapAdminProperty(
@@ -49,6 +55,7 @@ function mapAdminProperty(
 ): AdminProperty {
   return {
     ...property,
+    id: property.id,
     status:
       property.status === 'Approved'
         ? 'Published'
@@ -56,9 +63,24 @@ function mapAdminProperty(
   } as AdminProperty
 }
 
-export default function AdminPage({
-  onBack,
-}: AdminPageProps) {
+interface AdminPageProps {
+  properties?: AdminProperty[]
+  onApprove?: (id: string) => void
+  onReject?: (id: string) => void
+  onDelete?: (id: string) => void
+  onBack: () => void
+  t?: Record<string, string>
+}
+
+const navigation = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'pending', label: 'Awaiting Review', icon: Clock },
+  { id: 'published', label: 'Published', icon: BadgeCheck },
+  { id: 'rejected', label: 'Rejected', icon: XCircle },
+  { id: 'trends', label: 'Publication Trends', icon: TrendingUp },
+] as const
+
+export default function AdminPage({ onBack }: AdminPageProps) {
   const [authenticated, setAuthenticated] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
 
@@ -66,6 +88,8 @@ export default function AdminPage({
   const [password, setPassword] = useState('')
 
   const [properties, setProperties] = useState<AdminProperty[]>([])
+  const [activeTab, setActiveTab] = useState<DashboardTab>('overview')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const [loading, setLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
@@ -73,13 +97,8 @@ export default function AdminPage({
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  // ==========================================
-  // LOAD ADMINISTRATOR SESSION
-  // ==========================================
-
   async function loadAdminProperties() {
     const result = await getAdminProperties()
-
     setProperties(result.map(mapAdminProperty))
   }
 
@@ -94,10 +113,7 @@ export default function AdminPage({
 
         if (user) {
           await loadAdminProperties()
-
-          if (active) {
-            setAuthenticated(true)
-          }
+          if (active) setAuthenticated(true)
         }
       } catch (error) {
         if (active) {
@@ -108,9 +124,7 @@ export default function AdminPage({
           )
         }
       } finally {
-        if (active) {
-          setCheckingSession(false)
-        }
+        if (active) setCheckingSession(false)
       }
     }
 
@@ -121,10 +135,7 @@ export default function AdminPage({
     }
   }, [])
 
-  // ==========================================
-  // AUTOMATIC LOGOUT AFTER 2 MINUTES INACTIVE
-  // ==========================================
-
+  // Automatic logout after five minutes of inactivity
   useEffect(() => {
     if (!authenticated) return
 
@@ -138,24 +149,19 @@ export default function AdminPage({
       } finally {
         setAuthenticated(false)
         setProperties([])
-        setEmail('')
-        setPassword('')
-        setSuccessMessage(
-          'Your session expired after 2 minutes of inactivity. Please sign in again.'
-        )
+        setSuccessMessage('Your session expired. Please sign in again.')
       }
     }
 
     function resetTimer() {
       window.clearTimeout(timeoutId)
-
       timeoutId = window.setTimeout(
         logoutAfterInactivity,
         5 * 60 * 1000
       )
     }
 
-    const activityEvents = [
+    const events = [
       'mousedown',
       'mousemove',
       'keydown',
@@ -164,40 +170,26 @@ export default function AdminPage({
       'click',
     ]
 
-    activityEvents.forEach(event => {
-      window.addEventListener(event, resetTimer)
-    })
-
+    events.forEach(event => window.addEventListener(event, resetTimer))
     resetTimer()
 
     return () => {
       window.clearTimeout(timeoutId)
-
-      activityEvents.forEach(event => {
-        window.removeEventListener(event, resetTimer)
-      })
+      events.forEach(event => window.removeEventListener(event, resetTimer))
     }
   }, [authenticated])
-
-  // ==========================================
-  // ADMIN LOGIN
-  // ==========================================
 
   async function handleLogin(
     event: React.FormEvent<HTMLFormElement>
   ) {
     event.preventDefault()
-
     setErrorMessage('')
     setSuccessMessage('')
     setLoading(true)
 
     try {
       await adminLogin(email.trim(), password)
-
-      const result = await getAdminProperties()
-
-      setProperties(result.map(mapAdminProperty))
+      await loadAdminProperties()
       setAuthenticated(true)
       setPassword('')
       setSuccessMessage('Administrator login successful.')
@@ -212,43 +204,23 @@ export default function AdminPage({
     }
   }
 
-  // ==========================================
-  // ADMIN LOGOUT
-  // ==========================================
-
   async function handleLogout() {
-    setErrorMessage('')
-    setSuccessMessage('')
-
     try {
       await adminLogout()
-
       setAuthenticated(false)
       setProperties([])
       setEmail('')
       setPassword('')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to log out.'
+        error instanceof Error ? error.message : 'Unable to log out.'
       )
     }
   }
 
-  // ==========================================
-  // REFRESH PROPERTY LIST
-  // ==========================================
-
   async function refreshProperties() {
-    const result = await getAdminProperties()
-
-    setProperties(result.map(mapAdminProperty))
+    await loadAdminProperties()
   }
-
-  // ==========================================
-  // APPROVE PROPERTY
-  // ==========================================
 
   async function handleApprove(id: string) {
     setActionLoading(id)
@@ -257,24 +229,16 @@ export default function AdminPage({
 
     try {
       await updateAdminProperty(id, 'Approved')
-
       await refreshProperties()
-
-      setSuccessMessage('Property approved successfully.')
+      setSuccessMessage('Property published successfully.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to approve property.'
+        error instanceof Error ? error.message : 'Unable to approve property.'
       )
     } finally {
       setActionLoading(null)
     }
   }
-
-  // ==========================================
-  // REJECT PROPERTY
-  // ==========================================
 
   async function handleReject(id: string) {
     setActionLoading(id)
@@ -283,24 +247,16 @@ export default function AdminPage({
 
     try {
       await updateAdminProperty(id, 'Rejected')
-
       await refreshProperties()
-
       setSuccessMessage('Property rejected successfully.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to reject property.'
+        error instanceof Error ? error.message : 'Unable to reject property.'
       )
     } finally {
       setActionLoading(null)
     }
   }
-
-  // ==========================================
-  // DELETE PROPERTY
-  // ==========================================
 
   async function handleDelete(id: string) {
     const confirmed = window.confirm(
@@ -315,80 +271,103 @@ export default function AdminPage({
 
     try {
       await deleteAdminProperty(id)
-
       await refreshProperties()
-
       setSuccessMessage('Property deleted successfully.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : 'Unable to delete property.'
+        error instanceof Error ? error.message : 'Unable to delete property.'
       )
     } finally {
       setActionLoading(null)
     }
   }
 
-  // ==========================================
-  // STATISTICS
-  // ==========================================
+  const pending = properties.filter(p => p.status === 'Pending')
+  const published = properties.filter(p => p.status === 'Published')
+  const rejected = properties.filter(p => p.status === 'Rejected')
 
-  const pending = properties.filter(
-    property => property.status === 'Pending'
+  const total = properties.length
+
+  const statusStats = [
+    {
+      id: 'pending' as const,
+      label: 'Awaiting Review',
+      count: pending.length,
+      color: '#e7a33e',
+      icon: Clock,
+    },
+    {
+      id: 'published' as const,
+      label: 'Published',
+      count: published.length,
+      color: '#20a36b',
+      icon: BadgeCheck,
+    },
+    {
+      id: 'rejected' as const,
+      label: 'Rejected',
+      count: rejected.length,
+      color: '#dc5555',
+      icon: XCircle,
+    },
+  ]
+
+  const monthlyData = useMemo(() => {
+    const now = new Date()
+
+    return [0, 1, 2].map(monthOffset => {
+      const start = new Date(
+        now.getFullYear(),
+        now.getMonth() - monthOffset,
+        1
+      )
+
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth() - monthOffset + 1,
+        1
+      )
+
+      const count = properties.filter(property => {
+        const dateValue =
+          property.createdAt || property.$createdAt
+
+        if (!dateValue) return false
+
+        const date = new Date(dateValue)
+
+        return date >= start && date < end
+      }).length
+
+      return {
+        label: start.toLocaleDateString('en', {
+          month: 'long',
+          year: 'numeric',
+        }),
+        count,
+      }
+    }).reverse()
+  }, [properties])
+
+  const hasCreationDates = properties.some(
+    p => p.createdAt || p.$createdAt
   )
-
-  const published = properties.filter(
-    property => property.status === 'Published'
-  )
-
-  const rejected = properties.filter(
-    property => property.status === 'Rejected'
-  )
-
-  // ==========================================
-  // SHARED MESSAGE DISPLAY
-  // ==========================================
 
   const messages = (
     <>
       {errorMessage && (
-        <div
-          role="alert"
-          style={{
-            margin: '15px 0',
-            padding: '13px 16px',
-            borderRadius: 9,
-            background: '#fff0f0',
-            color: '#b42318',
-            fontSize: 13,
-          }}
-        >
+        <div role="alert" className="admin-message admin-error">
           {errorMessage}
         </div>
       )}
 
       {successMessage && (
-        <div
-          role="status"
-          style={{
-            margin: '15px 0',
-            padding: '13px 16px',
-            borderRadius: 9,
-            background: '#eaf8ef',
-            color: '#18733c',
-            fontSize: 13,
-          }}
-        >
+        <div role="status" className="admin-message admin-success">
           {successMessage}
         </div>
       )}
     </>
   )
-
-  // ==========================================
-  // SESSION CHECKING SCREEN
-  // ==========================================
 
   if (checkingSession) {
     return (
@@ -402,210 +381,59 @@ export default function AdminPage({
     )
   }
 
-  // ==========================================
-  // ADMIN LOGIN SCREEN
-  // ==========================================
-
   if (!authenticated) {
     return (
-      <main
-        className="admin-page"
-        style={{
-          minHeight: '75vh',
-          display: 'grid',
-          placeItems: 'center',
-        }}
-      >
-        <section
-          style={{
-            width: '100%',
-            maxWidth: 430,
-            padding: '32px 25px',
-            background: '#fff',
-            border: '1px solid var(--border)',
-            borderRadius: 16,
-            boxShadow: 'var(--shadow-soft)',
-          }}
-        >
-          <div
-            style={{
-              width: 55,
-              height: 55,
-              display: 'grid',
-              placeItems: 'center',
-              marginBottom: 20,
-              color: 'var(--primary)',
-              background: 'var(--primary-light)',
-              borderRadius: 14,
-            }}
-          >
+      <main className="admin-page admin-login-page">
+        <section className="admin-login-card">
+          <div className="admin-login-icon">
             <ShieldCheck size={29} />
           </div>
 
-          <span className="overline">
-            PAKHOMO AFRICA
-          </span>
-
-          <h1
-            style={{
-              margin: '10px 0',
-              fontSize: 27,
-              color: 'var(--text)',
-            }}
-          >
-            Administrator login
-          </h1>
-
-          <p
-            style={{
-              marginBottom: 25,
-              color: 'var(--text-light)',
-              fontSize: 13,
-              lineHeight: 1.7,
-            }}
-          >
-            Sign in with your authorized administrator
-            account to manage property submissions.
+          <span className="overline">PAKHOMO AFRICA</span>
+          <h1>Administrator login</h1>
+          <p>
+            Sign in with your authorized administrator account
+            to manage property submissions.
           </p>
 
           {messages}
 
           <form onSubmit={handleLogin}>
-            <label
-              htmlFor="admin-email"
-              style={{
-                display: 'block',
-                marginBottom: 8,
-                fontSize: 13,
-                fontWeight: 700,
-              }}
-            >
-              Administrator email
-            </label>
-
-            <div style={{ position: 'relative', marginBottom: 20 }}>
-              <Mail
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: 13,
-                  top: 14,
-                  color: 'var(--text-light)',
-                }}
-              />
-
+            <label htmlFor="admin-email">Administrator email</label>
+            <div className="admin-input-wrap">
+              <Mail size={18} />
               <input
                 id="admin-email"
                 type="email"
                 autoComplete="username"
                 required
                 value={email}
-                onChange={event => setEmail(event.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                style={{
-                  width: '100%',
-                  minHeight: 46,
-                  padding: '10px 12px 10px 42px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 9,
-                  fontSize: 14,
-                  boxSizing: 'border-box',
-                }}
               />
             </div>
 
-            <label
-              htmlFor="admin-password"
-              style={{
-                display: 'block',
-                marginBottom: 8,
-                fontSize: 13,
-                fontWeight: 700,
-              }}
-            >
-              Password
-            </label>
-
-            <div style={{ position: 'relative', marginBottom: 22 }}>
-              <LockKeyhole
-                size={18}
-                style={{
-                  position: 'absolute',
-                  left: 13,
-                  top: 14,
-                  color: 'var(--text-light)',
-                }}
-              />
-
+            <label htmlFor="admin-password">Password</label>
+            <div className="admin-input-wrap">
+              <LockKeyhole size={18} />
               <input
                 id="admin-password"
                 type="password"
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={event => setPassword(event.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                style={{
-                  width: '100%',
-                  minHeight: 46,
-                  padding: '10px 12px 10px 42px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 9,
-                  fontSize: 14,
-                  boxSizing: 'border-box',
-                }}
               />
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                width: '100%',
-                minHeight: 48,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 9,
-                color: '#fff',
-                background: 'var(--primary)',
-                border: 0,
-                borderRadius: 9,
-                fontSize: 14,
-                fontWeight: 750,
-                cursor: loading ? 'wait' : 'pointer',
-                opacity: loading ? 0.7 : 1,
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={18} />
-                  Signing in...
-                </>
-              ) : (
-                'Sign in securely'
-              )}
+            <button className="admin-login-button" type="submit" disabled={loading}>
+              {loading ? <Loader2 size={18} /> : <ShieldCheck size={18} />}
+              {loading ? 'Signing in...' : 'Sign in securely'}
             </button>
           </form>
 
-          <button
-            type="button"
-            onClick={onBack}
-            style={{
-              width: '100%',
-              marginTop: 18,
-              padding: 10,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 7,
-              color: 'var(--text-light)',
-              background: 'transparent',
-              border: 0,
-              fontSize: 13,
-              cursor: 'pointer',
-            }}
-          >
+          <button className="admin-back-button" onClick={onBack}>
             <ArrowLeft size={16} />
             Back to website
           </button>
@@ -614,127 +442,289 @@ export default function AdminPage({
     )
   }
 
-  // ==========================================
-  // AUTHENTICATED ADMIN DASHBOARD
-  // ==========================================
+  const currentTab = navigation.find(item => item.id === activeTab)
+
+  let visibleProperties: AdminProperty[] = []
+
+  if (activeTab === 'pending') visibleProperties = pending
+  if (activeTab === 'published') visibleProperties = published
+  if (activeTab === 'rejected') visibleProperties = rejected
+
+  function selectTab(tab: DashboardTab) {
+    setActiveTab(tab)
+    setSidebarOpen(false)
+    setErrorMessage('')
+    setSuccessMessage('')
+  }
 
   return (
-    <main className="admin-page">
+    <main className="admin-dashboard">
 
-      <div className="admin-heading">
-        <div>
-          <span className="overline">
-            PAKHOMO AFRICA
-          </span>
+      {sidebarOpen && (
+        <button
+          className="admin-sidebar-backdrop"
+          aria-label="Close menu"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-          <h1>Administration dashboard</h1>
-
-          <p>
-            Review property submissions and manage marketplace listings.
-          </p>
+      <aside className={`admin-sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className="admin-brand">
+          <div className="admin-brand-icon">
+            <Building2 size={23} />
+          </div>
+          <div>
+            <strong>PAKHOMO</strong>
+            <small>ADMINISTRATION</small>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-          <button
-            type="button"
-            className="admin-header-button"
-            onClick={onBack}
-          >
+        <div className="admin-nav-label">WORKSPACE</div>
+
+        <nav className="admin-navigation">
+          {navigation.map(item => {
+            const Icon = item.icon
+
+            return (
+              <button
+                key={item.id}
+                className={`admin-nav-item ${activeTab === item.id ? 'active' : ''}`}
+                onClick={() => selectTab(item.id)}
+              >
+                <Icon size={19} />
+                <span>{item.label}</span>
+
+                {item.id === 'pending' && pending.length > 0 && (
+                  <small>{pending.length}</small>
+                )}
+              </button>
+            )
+          })}
+        </nav>
+
+        <div className="admin-sidebar-bottom">
+          <div className="admin-secure-label">
+            <ShieldCheck size={17} />
+            <span>Secure admin session</span>
+          </div>
+
+          <button className="admin-sidebar-action" onClick={onBack}>
             <ArrowLeft size={17} />
             Back to website
           </button>
 
-          <button
-            type="button"
-            className="admin-header-button"
-            onClick={handleLogout}
-          >
+          <button className="admin-sidebar-action logout" onClick={handleLogout}>
             <LogOut size={17} />
             Logout
           </button>
         </div>
-      </div>
+      </aside>
 
-      {messages}
+      <section className="admin-main">
 
-      <AdminStats
-        total={properties.length}
-        pending={pending.length}
-        published={published.length}
-        rejected={rejected.length}
-      />
+        <header className="admin-topbar">
+          <button
+            className="admin-menu-button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={22} />
+          </button>
 
-      <section className="admin-panel">
-
-        <div className="admin-panel-heading">
           <div>
-            <h2>Property submissions</h2>
-
-            <p>
-              Check each property before making it visible to the public.
-            </p>
+            <span className="admin-topbar-label">PAKHOMO / ADMIN</span>
+            <h1>{currentTab?.label || 'Overview'}</h1>
           </div>
 
-          <span className="trending-count">
-            {properties.length} properties
-          </span>
+          <div className="admin-topbar-status">
+            <span />
+            Administrator
+          </div>
+        </header>
+
+        <div className="admin-content">
+          {messages}
+
+          {activeTab === 'overview' && (
+            <>
+              <div className="admin-welcome">
+                <div>
+                  <span className="overline">DASHBOARD OVERVIEW</span>
+                  <h2>Marketplace at a glance</h2>
+                  <p>Monitor and manage property submissions across Pakhomo.</p>
+                </div>
+
+                <div className="admin-total-card">
+                  <Home size={20} />
+                  <div>
+                    <strong>{total}</strong>
+                    <span>Total properties</span>
+                  </div>
+                </div>
+              </div>
+
+              <section className="admin-circle-grid">
+                {statusStats.map(stat => {
+                  const Icon = stat.icon
+                  const percentage = total
+                    ? Math.round((stat.count / total) * 100)
+                    : 0
+
+                  return (
+                    <button
+                      key={stat.id}
+                      className="admin-circle-card"
+                      onClick={() => selectTab(stat.id)}
+                    >
+                      <div
+                        className="admin-status-circle"
+                        style={{
+                          background: `conic-gradient(${stat.color} ${percentage * 3.6}deg, #edf0f4 0deg)`,
+                        }}
+                      >
+                        <div className="admin-circle-inner">
+                          <strong>{stat.count}</strong>
+                          <small>{percentage}%</small>
+                        </div>
+                      </div>
+
+                      <div className="admin-circle-label">
+                        <Icon size={17} style={{ color: stat.color }} />
+                        <span>{stat.label}</span>
+                      </div>
+                    </button>
+                  )
+                })}
+              </section>
+
+              <section className="admin-panel">
+                <div className="admin-panel-heading">
+                  <div>
+                    <h2>Recent submissions</h2>
+                    <p>Latest properties received by the platform.</p>
+                  </div>
+                  <button
+                    className="admin-text-button"
+                    onClick={() => selectTab('pending')}
+                  >
+                    Review pending
+                  </button>
+                </div>
+
+                {properties.length === 0 ? (
+                  <div className="admin-empty">
+                    <Home size={34} />
+                    <h3>No property submissions yet</h3>
+                    <p>New property submissions will appear here.</p>
+                  </div>
+                ) : (
+                  <AdminPropertyList
+                    properties={[...properties].slice(-5).reverse()}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    onDelete={handleDelete}
+                  />
+                )}
+              </section>
+            </>
+          )}
+
+          {['pending', 'published', 'rejected'].includes(activeTab) && (
+            <section className="admin-panel">
+              <div className="admin-panel-heading">
+                <div>
+                  <h2>{currentTab?.label}</h2>
+                  <p>
+                    {activeTab === 'pending'
+                      ? 'Review submissions and decide whether to publish them.'
+                      : activeTab === 'published'
+                      ? 'Properties currently approved for public display.'
+                      : 'Properties that have not been approved.'}
+                  </p>
+                </div>
+
+                <span className="trending-count">
+                  {visibleProperties.length} properties
+                </span>
+              </div>
+
+              {visibleProperties.length === 0 ? (
+                <div className="admin-empty">
+                  <Home size={34} />
+                  <h3>No properties in this section</h3>
+                  <p>There are currently no properties with this status.</p>
+                </div>
+              ) : (
+                <AdminPropertyList
+                  properties={visibleProperties}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                  onDelete={handleDelete}
+                />
+              )}
+            </section>
+          )}
+
+          {activeTab === 'trends' && (
+            <section className="admin-panel">
+              <div className="admin-panel-heading">
+                <div>
+                  <h2>Publication trends</h2>
+                  <p>Property submissions over the last three months.</p>
+                </div>
+                <TrendingUp size={24} />
+              </div>
+
+              {!hasCreationDates ? (
+                <div className="admin-empty">
+                  <TrendingUp size={34} />
+                  <h3>Creation dates not available</h3>
+                  <p>
+                    The current property API does not provide confirmed
+                    creation dates. We need to expose the Appwrite creation
+                    timestamp before monthly statistics can be calculated.
+                  </p>
+                </div>
+              ) : (
+                <div className="admin-trend-list">
+                  {monthlyData.map(month => (
+                    <div className="admin-trend-row" key={month.label}>
+                      <span>{month.label}</span>
+                      <div className="admin-trend-track">
+                        <div
+                          className="admin-trend-fill"
+                          style={{
+                            width: `${Math.max(
+                              2,
+                              (month.count /
+                                Math.max(1, ...monthlyData.map(m => m.count))) *
+                                100
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                      <strong>{month.count}</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          <div className="admin-security-note">
+            <ShieldCheck size={16} />
+            Administrator session active. Property actions are saved
+            directly to the Appwrite database.
+          </div>
         </div>
-
-        {properties.length === 0 ? (
-          <div className="admin-empty">
-            <Home size={35} />
-
-            <h3>No property submissions yet</h3>
-
-            <p>
-              New property submissions will appear here for review.
-            </p>
-          </div>
-        ) : (
-          <AdminPropertyList
-            properties={properties}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onDelete={handleDelete}
-          />
-        )}
-
       </section>
 
-      <div className="admin-security-note">
-        <span>
-          <ShieldCheck
-            size={15}
-            style={{ verticalAlign: 'middle', marginRight: 6 }}
-          />
-          Administrator session active. Property actions are saved
-          directly to the Appwrite database.
-        </span>
-      </div>
-
       {actionLoading && (
-        <div
-          style={{
-            position: 'fixed',
-            right: 16,
-            bottom: 16,
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 9,
-            color: '#fff',
-            background: 'var(--primary)',
-            borderRadius: 10,
-            boxShadow: 'var(--shadow-soft)',
-            zIndex: 1000,
-            fontSize: 13,
-          }}
-        >
+        <div className="admin-action-toast">
           <Loader2 size={17} />
           Processing property...
         </div>
       )}
-
     </main>
   )
 }
