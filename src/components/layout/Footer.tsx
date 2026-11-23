@@ -19,7 +19,9 @@ export default function Footer({ t }: FooterProps) {
       <div className="footer-content">
         <div className="footer-brand">
           <a className="brand" href="#">
-            <span className="brand-mark">⌂</span>
+            <span className="brand-mark">
+            <Building2 size={21} />
+            </span>
             <span>
               Pakhomo<span className="brand-light">africa</span>
             </span>
