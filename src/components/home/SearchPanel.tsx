@@ -147,7 +147,7 @@ function handleSearch() {
         <button
           type="button"
           className="search-button"
-          onClick={onViewAll}
+          onClick={handleSearch}
         >
           {t.search}
           <ArrowRight size={15} />
