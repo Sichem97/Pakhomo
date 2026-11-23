@@ -153,6 +153,11 @@ function handleSearch() {
           <ArrowRight size={15} />
         </button>
       </div>
+      {error && (
+        <p className="search-error" role="alert">
+          {error}
+        </p>
+      )}
 
       <div className="listing-toolbar">
         <div className="tabs">
