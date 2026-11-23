@@ -11,6 +11,8 @@ import type {
   PropertyKind,
 } from '../../types'
 
+import { useState } from 'react'
+
 type ListingType = 'All' | 'Rent' | 'Sale'
 
 interface SearchPanelProps {
@@ -61,6 +63,28 @@ export default function SearchPanel({
   onQueryChange,
   onViewAll,
 }: SearchPanelProps) {
+
+const [error, setError] = useState('')
+function handleSearch() {
+  if (!countryReady) {
+    setError('Please wait while we detect your country.')
+    return
+  }
+
+  if (!query.trim()) {
+    setError('Please enter a search keyword.')
+    return
+  }
+
+  if (!city || !kind) {
+    setError('Please complete all search fields.')
+    return
+  }
+
+  setError('')
+  onViewAll()
+}
+
   return (
     <>
       <div className="section-heading">
