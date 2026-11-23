@@ -125,10 +125,13 @@ export default function PopularLocationsSection({
             aria-label={`${location.city} - ${location.landmark}`}
           >
             <img
-              src={location.image}
-              alt={`${location.landmark}, ${location.city}`}
-              loading="lazy"
-            />
+  src={location.image}
+  alt={`${location.landmark}, ${location.city}`}
+  loading="lazy"
+  onError={(event) => {
+    event.currentTarget.style.display = 'none'
+  }}
+/>
 
             <span className="popular-location-overlay" />
 
