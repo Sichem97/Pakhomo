@@ -14,7 +14,6 @@ import {
   XCircle,
   TrendingUp,
   Menu,
-  Building2,
 } from 'lucide-react'
 
 import {
