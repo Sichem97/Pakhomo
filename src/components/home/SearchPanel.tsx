@@ -143,11 +143,7 @@ function handleSearch() {
             ))}
           </select>
         </div>
-{error && (
-        <p className="search-error" role="alert">
-          {error}
-        </p>
-      )}
+
         <button
           type="button"
           className="search-button"
@@ -156,6 +152,11 @@ function handleSearch() {
           {t.search}
           <ArrowRight size={15} />
         </button>
+        {error && (
+        <p className="search-error" role="alert">
+          {error}
+        </p>
+      )}
       </div>
       
       <div className="listing-toolbar">
